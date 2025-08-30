@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ru">
+    <head>
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width,initial-scale=1,viewport-fit=cover"
+        />
+        <meta name="robots" content="noindex,nofollow" />
+        <title>Medperfekt — Заявка</title>
+        <script src="https://telegram.org/js/telegram-web-app.js"></script>
+        <style>
+            :root {
+                /* Палитра в духе сайта: белый + тёмно-синий + голубой */
+                --bg: #f7fbff; /* айс-голубой фон секций */
+                --card: #ffffff; /* карточки/бланк */
+                --ink: #0f1b2b; /* тёмно-синий текст */
+                --muted: #6b7586; /* вторичный текст */
+                --accent: #2fa4e7; /* голубая кнопка/акцент */
+                --radius: 16px;
+                --shadow: 0 10px 30px rgba(15, 27, 43, 0.06);
+            }
+            * {
+                box-sizing: border-box;
+            }
+            html,
+            body {
+                margin: 0;
+                height: 100%;
+                font-family: system-ui, Inter, Arial;
+            }
+            body {
+                background: var(--bg);
+                color: var(--ink);
+            }
+            .wrap {
+                max-width: 720px;
+                margin: 0 auto;
+                padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+            }
+            .card {
+                background: var(--card);
+                border-radius: var(--radius);
+                box-shadow: var(--shadow);
+                border: 1px solid #eef3f8;
+                padding: 16px;
+            }
+            h1 {
+                font-size: 20px;
+                margin: 0 0 12px;
+            }
+            .muted {
+                color: var(--muted);
+                font-size: 14px;
+                margin-bottom: 12px;
+            }
+            .grid {
+                display: grid;
+                gap: 12px;
+            }
+            .field {
+                display: grid;
+                gap: 6px;
+            }
+            label {
+                font-size: 14px;
+                color: var(--muted);
+            }
+            input,
+            select,
+            textarea {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e3e9f1;
+                border-radius: 12px;
+                background: #fff;
+                font-size: 16px;
+            }
+            textarea {
+                min-height: 96px;
+                resize: vertical;
+            }
+            .btn {
+                height: 48px;
+                border-radius: 14px;
+                border: 0;
+                background: var(--accent);
+                color: #fff;
+                font-weight: 600;
+                cursor: pointer;
+            }
+            .brand {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin: 4px 0 16px;
+            }
+            .logo {
+                width: 36px;
+                height: 36px;
+                border-radius: 12px;
+                background: linear-gradient(135deg, #1b3b5a, var(--accent));
+            }
+            .brand h2 {
+                margin: 0;
+                font-size: 16px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrap">
+            <div class="brand">
+                <div class="logo"></div>
+                <h2>Medperfekt</h2>
+            </div>
+            <div class="card">
+                <h1>Оставить заявку</h1>
+                <div class="muted">
+                    Заполните поля и нажмите «Отправить». Мы свяжемся с вами в
+                    ближайшее рабочее время.
+                </div>
+
+                <div class="grid">
+                    <div class="field">
+                        <label>Страна лечения</label>
+                        <select id="country">
+                            <option>Германия</option>
+                            <option>Абхазия</option>
+                            <option>Англия</option>
+                            <option>Дубай</option>
+                            <option>Другое</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Диагноз / запрос (свободный текст)</label>
+                        <textarea
+                            id="disease"
+                            placeholder="Коротко опишите вашу ситуацию"
+                        ></textarea>
+                    </div>
+
+                    <div class="field">
+                        <label>Способ связи</label>
+                        <select id="method">
+                            <option>WhatsApp</option>
+                            <option>Telegram</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Контакт (номер или @username)</label>
+                        <input
+                            id="contact"
+                            placeholder="+49..., +971..., или @username"
+                        />
+                    </div>
+
+                    <div class="field">
+                        <label>Комментарий (необязательно)</label>
+                        <textarea
+                            id="comment"
+                            placeholder="Предпочтительное время связи, детали..."
+                        ></textarea>
+                    </div>
+
+                    <button class="btn" id="send">Отправить</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const tg = window.Telegram?.WebApp;
+            tg?.ready();
+            tg?.expand();
+
+            const el = (id) => document.getElementById(id);
+
+            document.getElementById("send").onclick = () => {
+                const payload = {
+                    country: el("country").value,
+                    disease: el("disease").value.trim(),
+                    method: el("method").value,
+                    contact: el("contact").value.trim(),
+                    comment: el("comment").value.trim() || null,
+                    ts: Date.now(),
+                };
+
+                if (!payload.disease) {
+                    alert("Опишите диагноз/запрос");
+                    return;
+                }
+                if (!payload.contact) {
+                    alert("Укажите контакт");
+                    return;
+                }
+
+                if (tg) {
+                    tg.sendData(JSON.stringify(payload));
+                    alert("Заявка отправлена. Спасибо!");
+                    tg.close();
+                } else {
+                    console.log("Demo payload:", payload);
+                    alert("Откройте форму из Telegram для реальной отправки.");
+                }
+            };
+        </script>
+    </body>
+</html>
