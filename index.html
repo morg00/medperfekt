@@ -11,14 +11,17 @@
         <script src="https://telegram.org/js/telegram-web-app.js"></script>
         <style>
             :root {
-                /* Палитра в духе сайта: белый + тёмно-синий + голубой */
-                --bg: #f7fbff; /* айс-голубой фон секций */
-                --card: #ffffff; /* карточки/бланк */
-                --ink: #0f1b2b; /* тёмно-синий текст */
-                --muted: #6b7586; /* вторичный текст */
-                --accent: #2fa4e7; /* голубая кнопка/акцент */
-                --radius: 16px;
-                --shadow: 0 10px 30px rgba(15, 27, 43, 0.06);
+                /* палитра под сайт: белый + тёмный текст + бирюзовый акцент */
+                --bg: #f6fbfc;
+                --card: #ffffff;
+                --ink: #0e2733;
+                --muted: #6b7a86;
+                --accent: #12c2b0; /* бирюзовый CTA */
+                --accent-ghost: #e6faf7; /* мягкий фон акцента */
+                --ring: #b8efe8;
+                --radius: 18px;
+                --shadow: 0 14px 40px rgba(10, 40, 50, 0.08);
+                --speed: 0.32s;
             }
             * {
                 box-sizing: border-box;
@@ -27,36 +30,87 @@
             body {
                 margin: 0;
                 height: 100%;
-                font-family: system-ui, Inter, Arial;
+                font-family:
+                    system-ui,
+                    -apple-system,
+                    Segoe UI,
+                    Inter,
+                    Roboto,
+                    Arial;
             }
             body {
                 background: var(--bg);
                 color: var(--ink);
             }
             .wrap {
-                max-width: 720px;
+                max-width: 760px;
                 margin: 0 auto;
-                padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+                padding: 20px 16px calc(24px + env(safe-area-inset-bottom));
             }
+            .brand {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin: 2px 0 16px;
+            }
+            .logo {
+                width: 44px;
+                height: 44px;
+                border-radius: 14px;
+                background: #0bbfaa url("photo.jpg") center/cover no-repeat;
+                box-shadow: 0 6px 18px rgba(11, 191, 170, 0.22);
+            }
+            .brand h2 {
+                margin: 0;
+                font-size: 18px;
+                font-weight: 800;
+                letter-spacing: 0.2px;
+            }
+
             .card {
                 background: var(--card);
                 border-radius: var(--radius);
                 box-shadow: var(--shadow);
-                border: 1px solid #eef3f8;
-                padding: 16px;
+                border: 1px solid #edf3f5;
+                padding: 18px;
             }
             h1 {
-                font-size: 20px;
-                margin: 0 0 12px;
+                font-size: 22px;
+                margin: 2px 0 10px;
             }
             .muted {
                 color: var(--muted);
                 font-size: 14px;
-                margin-bottom: 12px;
+            }
+            .btn {
+                height: 54px;
+                border-radius: 16px;
+                border: 0;
+                background: var(--accent);
+                color: #fff;
+                font-weight: 700;
+                cursor: pointer;
+                padding: 0 20px;
+            }
+            .btn.ghost {
+                background: var(--accent-ghost);
+                color: #064e47;
+                border: 1px solid #d2f4ee;
+            }
+            .btn.outline {
+                background: #fff;
+                border: 1px solid #e3edf0;
+                color: var(--ink);
             }
             .grid {
                 display: grid;
                 gap: 12px;
+            }
+            .row {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+                flex-wrap: wrap;
             }
             .field {
                 display: grid;
@@ -70,9 +124,9 @@
             select,
             textarea {
                 width: 100%;
-                padding: 12px;
-                border: 1px solid #e3e9f1;
-                border-radius: 12px;
+                padding: 12px 14px;
+                border: 1px solid #e3edf0;
+                border-radius: 14px;
                 background: #fff;
                 font-size: 16px;
             }
@@ -80,30 +134,122 @@
                 min-height: 96px;
                 resize: vertical;
             }
-            .btn {
-                height: 48px;
-                border-radius: 14px;
-                border: 0;
-                background: var(--accent);
-                color: #fff;
-                font-weight: 600;
+            .chips {
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+            .chip {
+                padding: 10px 14px;
+                border-radius: 999px;
+                border: 1px solid #e7f1f3;
+                background: #fff;
                 cursor: pointer;
             }
-            .brand {
+            .chip.sel {
+                background: var(--accent-ghost);
+                border-color: #c9efe8;
+            }
+            .sticky {
+                position: sticky;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                margin-top: 12px;
+                background: linear-gradient(
+                    180deg,
+                    rgba(246, 251, 252, 0),
+                    var(--bg) 40%
+                );
+                padding-top: 10px;
+            }
+            .cta {
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+            .ok {
+                font-size: 56px;
+                text-align: center;
+            }
+
+            /* шаги как всплывающие панели снизу */
+            .sheet {
+                position: fixed;
+                left: 0;
+                right: 0;
+                bottom: -100%;
+                background: var(--card);
+                border-top-left-radius: 22px;
+                border-top-right-radius: 22px;
+                box-shadow: 0 -18px 60px rgba(0, 0, 0, 0.12);
+                border: 1px solid #eaf2f4;
+                max-width: 760px;
+                margin: 0 auto;
+                padding: 18px 16px;
+                transition:
+                    transform var(--speed) ease,
+                    opacity var(--speed) ease;
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            .sheet.show {
+                transform: translateY(0);
+                bottom: 0;
+                opacity: 1;
+            }
+            .sheet .title {
+                font-size: 18px;
+                font-weight: 700;
+                margin: 0 0 8px;
+            }
+            .sheet .subtitle {
+                font-size: 14px;
+                color: var(--muted);
+                margin: 0 0 12px;
+            }
+            .overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.18);
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity var(--speed);
+            }
+            .overlay.show {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            /* иконки способов связи */
+            .method {
+                display: flex;
+                gap: 12px;
+            }
+            .method .opt {
+                flex: 1;
                 display: flex;
                 align-items: center;
-                gap: 12px;
-                margin: 4px 0 16px;
+                gap: 10px;
+                border: 1px solid #e3edf0;
+                border-radius: 14px;
+                padding: 12px;
+                cursor: pointer;
+                background: #fff;
             }
-            .logo {
-                width: 36px;
-                height: 36px;
-                border-radius: 12px;
-                background: linear-gradient(135deg, #1b3b5a, var(--accent));
+            .method .opt.sel {
+                border-color: #b9efe7;
+                background: var(--accent-ghost);
             }
-            .brand h2 {
-                margin: 0;
-                font-size: 16px;
+            .method .icon {
+                width: 28px;
+                height: 28px;
+                border-radius: 7px;
+                background: #e9f6ff;
+            }
+            .hint {
+                font-size: 12px;
+                color: #7a8b96;
             }
         </style>
     </head>
@@ -113,58 +259,191 @@
                 <div class="logo"></div>
                 <h2>Medperfekt</h2>
             </div>
-            <div class="card">
-                <h1>Оставить заявку</h1>
-                <div class="muted">
-                    Заполните поля и нажмите «Отправить». Мы свяжемся с вами в
-                    ближайшее рабочее время.
+
+            <!-- WELCOME -->
+            <section id="scr-home" class="card">
+                <h1>Лечение в лучших клиниках Германии</h1>
+                <p class="muted">
+                    Организация диагностики, лечения и реабилитации — мы берём
+                    заботы на себя.
+                </p>
+                <div class="row">
+                    <button class="btn" id="ctaStart">Подать заявку</button>
                 </div>
+            </section>
 
-                <div class="grid">
-                    <div class="field">
-                        <label>Страна лечения</label>
-                        <select id="country">
-                            <option>Германия</option>
-                            <option>Абхазия</option>
-                            <option>Англия</option>
-                            <option>Дубай</option>
-                            <option>Другое</option>
-                        </select>
+            <!-- Плашка "готово" после отправки -->
+            <section
+                id="scr-done"
+                class="card"
+                style="display: none; text-align: center"
+            >
+                <div class="ok">✅</div>
+                <h1>Заявка отправлена</h1>
+                <p class="muted">Мы свяжемся с вами в ближайшее время.</p>
+                <div class="row" style="justify-content: center">
+                    <button class="btn outline" onclick="resetFlow()">
+                        На главную
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <div id="overlay" class="overlay"></div>
+
+        <!-- ШАГ 1: страна -->
+        <div id="sheet-country" class="sheet" role="dialog" aria-modal="true">
+            <div class="title">Где вы хотите проходить лечение?</div>
+            <div class="subtitle">Выберите страну</div>
+            <div class="chips" id="countries"></div>
+            <div class="sticky">
+                <div class="cta">
+                    <button
+                        class="btn ghost"
+                        onclick="closeSheet('sheet-country')"
+                    >
+                        Отмена
+                    </button>
+                    <button class="btn" onclick="goDisease()">Далее</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ШАГ 2: диагноз -->
+        <div id="sheet-disease" class="sheet" role="dialog" aria-modal="true">
+            <div class="title">Какой у вас диагноз / запрос?</div>
+            <div class="subtitle">Напишите коротко в свободной форме</div>
+            <div class="field">
+                <textarea
+                    id="inp-disease"
+                    placeholder="Например: консультация онколога, второе мнение..."
+                ></textarea>
+                <div class="hint">Минимум 5 символов</div>
+            </div>
+            <div class="sticky">
+                <div class="cta">
+                    <button
+                        class="btn ghost"
+                        onclick="backTo('sheet-country','sheet-disease')"
+                    >
+                        Назад
+                    </button>
+                    <button class="btn" onclick="goContactMethod()">
+                        Далее
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ШАГ 3: способ связи -->
+        <div id="sheet-method" class="sheet" role="dialog" aria-modal="true">
+            <div class="title">Как удобнее связаться?</div>
+            <div class="method" id="method-opts">
+                <div class="opt sel" data-val="WhatsApp">
+                    <div class="icon" style="background: #e5fff7"></div>
+                    <b>WhatsApp</b>
+                </div>
+                <div class="opt" data-val="Telegram">
+                    <div class="icon" style="background: #e9f5ff"></div>
+                    <b>Telegram</b>
+                </div>
+            </div>
+            <div class="sticky">
+                <div class="cta">
+                    <button
+                        class="btn ghost"
+                        onclick="backTo('sheet-disease','sheet-method')"
+                    >
+                        Назад
+                    </button>
+                    <button class="btn" onclick="goContacts()">Далее</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ШАГ 4: контактные данные -->
+        <div id="sheet-contacts" class="sheet" role="dialog" aria-modal="true">
+            <div class="title">Контакты</div>
+            <div class="grid">
+                <div class="field">
+                    <label>Телефон (международный формат)</label>
+                    <input
+                        id="inp-phone"
+                        inputmode="tel"
+                        placeholder="+491234567890"
+                        pattern="^\\+[1-9]\\d{1,14}$"
+                        required
+                    />
+                    <div class="hint">
+                        Пример E.164: +14155552671 (до 15 цифр).*
                     </div>
-
-                    <div class="field">
-                        <label>Диагноз / запрос (свободный текст)</label>
-                        <textarea
-                            id="disease"
-                            placeholder="Коротко опишите вашу ситуацию"
-                        ></textarea>
+                </div>
+                <div class="field">
+                    <label>Email (необязательно)</label>
+                    <input
+                        id="inp-email"
+                        type="email"
+                        placeholder="name@example.com"
+                    />
+                    <div class="hint">
+                        Почта проверяется встроенной валидацией HTML5.
                     </div>
+                </div>
+            </div>
+            <div class="sticky">
+                <div class="cta">
+                    <button
+                        class="btn ghost"
+                        onclick="backTo('sheet-method','sheet-contacts')"
+                    >
+                        Назад
+                    </button>
+                    <button class="btn" onclick="goComment()">Далее</button>
+                </div>
+            </div>
+        </div>
 
-                    <div class="field">
-                        <label>Способ связи</label>
-                        <select id="method">
-                            <option>WhatsApp</option>
-                            <option>Telegram</option>
-                        </select>
-                    </div>
+        <!-- ШАГ 5: комментарий -->
+        <div id="sheet-comment" class="sheet" role="dialog" aria-modal="true">
+            <div class="title">Комментарий (необязательно)</div>
+            <div class="field">
+                <textarea
+                    id="inp-comment"
+                    placeholder="Предпочтительные даты, врач, детали..."
+                ></textarea>
+            </div>
+            <div class="sticky">
+                <div class="cta">
+                    <button
+                        class="btn ghost"
+                        onclick="backTo('sheet-contacts','sheet-comment')"
+                    >
+                        Назад
+                    </button>
+                    <button class="btn" onclick="goPreview()">Далее</button>
+                </div>
+            </div>
+        </div>
 
-                    <div class="field">
-                        <label>Контакт (номер или @username)</label>
-                        <input
-                            id="contact"
-                            placeholder="+49..., +971..., или @username"
-                        />
-                    </div>
-
-                    <div class="field">
-                        <label>Комментарий (необязательно)</label>
-                        <textarea
-                            id="comment"
-                            placeholder="Предпочтительное время связи, детали..."
-                        ></textarea>
-                    </div>
-
-                    <button class="btn" id="send">Отправить</button>
+        <!-- ШАГ 6: превью -->
+        <div id="sheet-preview" class="sheet" role="dialog" aria-modal="true">
+            <div class="title">Проверьте заявку</div>
+            <div
+                id="preview"
+                class="grid"
+                style="gap: 6px; margin: 8px 0 12px"
+            ></div>
+            <div class="sticky">
+                <div class="cta">
+                    <button
+                        class="btn ghost"
+                        onclick="backTo('sheet-comment','sheet-preview')"
+                    >
+                        Назад
+                    </button>
+                    <button class="btn" onclick="submitApp()">
+                        Подать заявку
+                    </button>
                 </div>
             </div>
         </div>
@@ -173,37 +452,189 @@
             const tg = window.Telegram?.WebApp;
             tg?.ready();
             tg?.expand();
+            const $ = (id) => document.getElementById(id);
 
-            const el = (id) => document.getElementById(id);
+            // состояние
+            const state = {
+                country: null,
+                disease: "",
+                method: "WhatsApp",
+                phone: "",
+                email: null,
+                comment: null,
+            };
 
-            document.getElementById("send").onclick = () => {
+            // страны
+            const COUNTRY_LIST = [
+                "Германия",
+                "Англия",
+                "Абхазия",
+                "Дубай",
+                "Другое",
+            ];
+
+            // отрисовка стран с "Coming soon" кроме Германии
+            function renderCountries() {
+                const root = $("countries");
+                root.innerHTML = "";
+                COUNTRY_LIST.forEach((name) => {
+                    const b = document.createElement("div");
+                    b.className = "chip";
+                    b.textContent =
+                        name + (name !== "Германия" ? " · Coming soon" : "");
+                    b.onclick = () => {
+                        // доступна только Германия
+                        if (name !== "Германия") {
+                            alert(
+                                "Пока доступна только Германия. Остальные — скоро.",
+                            );
+                            return;
+                        }
+                        state.country = name;
+                        [...root.children].forEach((n) =>
+                            n.classList.remove("sel"),
+                        );
+                        b.classList.add("sel");
+                    };
+                    root.appendChild(b);
+                });
+            }
+
+            // методы связи (переключатель)
+            function initMethod() {
+                for (const el of $("method-opts").querySelectorAll(".opt")) {
+                    el.onclick = () => {
+                        for (const n of $("method-opts").children)
+                            n.classList.remove("sel");
+                        el.classList.add("sel");
+                        state.method = el.getAttribute("data-val");
+                    };
+                }
+            }
+
+            // управление панелями
+            function openSheet(id) {
+                $("overlay").classList.add("show");
+                $(id).classList.add("show");
+            }
+            function closeSheet(id) {
+                $(id).classList.remove("show");
+                $("overlay").classList.remove("show");
+            }
+            function backTo(prevId, currId) {
+                $(currId).classList.remove("show");
+                $(prevId).classList.add("show");
+            }
+
+            // шаги
+            $("ctaStart").onclick = () => {
+                renderCountries();
+                openSheet("sheet-country");
+            };
+
+            function goDisease() {
+                if (state.country !== "Германия") {
+                    alert("Выберите Германию (пока доступна только она).");
+                    return;
+                }
+                closeSheet("sheet-country");
+                openSheet("sheet-disease");
+            }
+
+            function goContactMethod() {
+                const txt = $("inp-disease").value.trim();
+                if (txt.length < 5) {
+                    alert(
+                        "Опишите запрос чуть подробнее (минимум 5 символов).",
+                    );
+                    return;
+                }
+                state.disease = txt;
+                closeSheet("sheet-disease");
+                openSheet("sheet-method");
+                initMethod();
+            }
+
+            function goContacts() {
+                closeSheet("sheet-method");
+                openSheet("sheet-contacts");
+            }
+
+            function goComment() {
+                const phone = $("inp-phone");
+                if (!phone.checkValidity()) {
+                    alert(
+                        "Укажите телефон в международном формате (пример: +14155552671).",
+                    );
+                    phone.focus();
+                    return;
+                }
+                state.phone = phone.value.trim();
+
+                const email = $("inp-email").value.trim();
+                if (email && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test(email)) {
+                    // лёгкая доп.проверка
+                    alert("Похоже, e-mail введён с ошибкой.");
+                    return;
+                }
+                state.email = email || null;
+
+                closeSheet("sheet-contacts");
+                openSheet("sheet-comment");
+            }
+
+            function goPreview() {
+                state.comment = $("inp-comment").value.trim() || null;
+                const p = $("preview");
+                p.innerHTML = `
+        <div><b>Страна:</b> ${state.country}</div>
+        <div><b>Запрос:</b> ${escapeHTML(state.disease)}</div>
+        <div><b>Связь:</b> ${state.method}</div>
+        <div><b>Телефон:</b> ${escapeHTML(state.phone)}</div>
+        <div><b>Email:</b> ${state.email ? escapeHTML(state.email) : "—"}</div>
+        <div><b>Комментарий:</b> ${state.comment ? escapeHTML(state.comment) : "—"}</div>
+      `;
+                closeSheet("sheet-comment");
+                openSheet("sheet-preview");
+            }
+
+            function resetFlow() {
+                $("scr-done").style.display = "none";
+                $("scr-home").style.display = "block";
+            }
+
+            function submitApp() {
                 const payload = {
-                    country: el("country").value,
-                    disease: el("disease").value.trim(),
-                    method: el("method").value,
-                    contact: el("contact").value.trim(),
-                    comment: el("comment").value.trim() || null,
+                    country: state.country,
+                    disease: state.disease,
+                    method: state.method,
+                    contact: state.phone,
+                    email: state.email,
+                    comment: state.comment,
                     ts: Date.now(),
                 };
-
-                if (!payload.disease) {
-                    alert("Опишите диагноз/запрос");
-                    return;
-                }
-                if (!payload.contact) {
-                    alert("Укажите контакт");
-                    return;
-                }
-
                 if (tg) {
-                    tg.sendData(JSON.stringify(payload));
+                    tg.sendData(JSON.stringify(payload)); // прилетит в бота как web_app_data
                     alert("Заявка отправлена. Спасибо!");
                     tg.close();
                 } else {
                     console.log("Demo payload:", payload);
                     alert("Откройте форму из Telegram для реальной отправки.");
+                    // показать экран "готово" для браузерного демо
+                    $("scr-home").style.display = "none";
+                    $("scr-done").style.display = "block";
+                    closeSheet("sheet-preview");
                 }
-            };
+            }
+
+            function escapeHTML(s) {
+                return String(s)
+                    .replaceAll("&", "&amp;")
+                    .replaceAll("<", "&lt;")
+                    .replaceAll(">", "&gt;")
+                    .replaceAll('"', "&quot;")
+                    .replaceAll("'", "&#39;");
+            }
         </script>
     </body>
 </html>
