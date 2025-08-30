@@ -480,8 +480,7 @@
                 COUNTRY_LIST.forEach((name) => {
                     const b = document.createElement("div");
                     b.className = "chip";
-                    b.textContent =
-                        name + (name !== "Германия" ? " · Coming soon" : "");
+                    b.textContent = name;
                     b.onclick = () => {
                         // доступна только Германия
                         if (name !== "Германия") {
