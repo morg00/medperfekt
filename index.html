@@ -252,6 +252,47 @@
                 font-size: 12px;
                 color: #7a8b96;
             }
+
+            /* Стили для выбора услуг */
+            .service-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .service-option {
+                padding: 16px 12px;
+                border: 1px solid #e3edf0;
+                border-radius: 14px;
+                background: #fff;
+                cursor: pointer;
+                text-align: center;
+                font-size: 14px;
+                font-weight: 500;
+            }
+            .service-option.sel {
+                border-color: #b9efe7;
+                background: var(--accent-ghost);
+            }
+
+            /* Стили для времени связи */
+            .time-options {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 10px;
+            }
+            .time-option {
+                padding: 12px 8px;
+                border: 1px solid #e3edf0;
+                border-radius: 12px;
+                background: #fff;
+                cursor: pointer;
+                text-align: center;
+                font-size: 13px;
+            }
+            .time-option.sel {
+                border-color: #b9efe7;
+                background: var(--accent-ghost);
+            }
         </style>
     </head>
     <body>
@@ -261,8 +302,8 @@
                 <h2>Medperfekt</h2>
             </div>
 
-            <!-- WELCOME -->
-            <section id="scr-home" class="card">
+            <!-- WELCOME (скрыт, так как форма открывается сразу) -->
+            <section id="scr-home" class="card" style="display: none;">
                 <h1>Лечение в лучших клиниках Германии</h1>
                 <p class="muted">
                     Организация диагностики, лечения и реабилитации — мы берём
@@ -292,96 +333,61 @@
 
         <div id="overlay" class="overlay"></div>
 
-        <!-- ШАГ 1: страна -->
-        <div id="sheet-country" class="sheet" role="dialog" aria-modal="true">
-            <div class="title">Где вы хотите проходить лечение?</div>
-            <div class="subtitle">Выберите страну</div>
-            <div class="chips" id="countries"></div>
-            <div class="sticky">
-                <div class="cta">
-                    <button
-                        class="btn ghost"
-                        onclick="closeSheet('sheet-country')"
-                    >
-                        Отмена
-                    </button>
-                    <button class="btn" onclick="goDisease()">Далее</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ШАГ 2: диагноз -->
-        <div id="sheet-disease" class="sheet" role="dialog" aria-modal="true">
-            <div class="title">Какой у вас диагноз / запрос?</div>
-            <div class="subtitle">Напишите коротко в свободной форме</div>
-            <div class="field">
-                <textarea
-                    id="inp-disease"
-                    placeholder="Например: консультация онколога, второе мнение..."
-                ></textarea>
-                <div class="hint">Минимум 5 символов</div>
-            </div>
-            <div class="sticky">
-                <div class="cta">
-                    <button
-                        class="btn ghost"
-                        onclick="backTo('sheet-country','sheet-disease')"
-                    >
-                        Назад
-                    </button>
-                    <button class="btn" onclick="goContactMethod()">
-                        Далее
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ШАГ 3: способ связи -->
-        <div id="sheet-method" class="sheet" role="dialog" aria-modal="true">
-            <div class="title">Как удобнее связаться?</div>
-            <div class="method" id="method-opts">
-                <div class="opt sel" data-val="WhatsApp">
-                    <!-- иконка WhatsApp, брендовый цвет -->
-                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                        <path
-                            fill="#25D366"
-                            d="M20.52 3.48A11.86 11.86 0 0 0 12.06 0C5.49 0 .16 5.33.16 11.9c0 2.09.55 4.14 1.59 5.94L0 24l6.33-1.66a11.86 11.86 0 0 0 5.73 1.46h.01c6.57 0 11.9-5.33 11.9-11.9 0-3.17-1.23-6.15-3.45-8.42zM12.07 21.4h-.01a9.5 9.5 0 0 1-4.84-1.33l-.35-.2-3.76.98.99-3.66-.23-.37a9.5 9.5 0 1 1 8.2 4.58zm5.51-7.14c-.3-.15-1.77-.87-2.04-.97-.27-.1-.46-.15-.66.15-.19.3-.76.97-.93 1.17-.17.2-.34.22-.64.07-.3-.15-1.27-.47-2.42-1.5-.9-.8-1.51-1.78-1.69-2.08-.18-.3-.02-.46.13-.61.13-.13.3-.34.44-.51.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.66-1.59-.91-2.18-.24-.58-.48-.5-.66-.51l-.56-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.22 3.08.15.2 2.1 3.2 5.1 4.49.71.31 1.26.5 1.69.63.71.22 1.36.19 1.87.11.57-.08 1.77-.72 2.02-1.41.25-.69.25-1.28.17-1.41-.07-.13-.27-.2-.56-.35z"
-                        />
-                    </svg>
-                    <b>WhatsApp</b>
-                </div>
-
-                <div class="opt" data-val="Telegram">
-                    <!-- иконка Telegram, брендовый цвет -->
-                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                        <path
-                            fill="#0088CC"
-                            d="M9.999 15.2 9.9 19c.4 0 .6-.2.9-.4l2.2-2 4.5 3.3c.8.5 1.4.2 1.6-.8l2.9-13.5c.3-1.2-.4-1.7-1.2-1.4L2.1 9.1C.9 9.6.9 10.3 1.9 10.6l4.7 1.5L18.6 5c.5-.3 1-.1.6.2L9.999 15.2z"
-                        />
-                    </svg>
-                    <b>Telegram</b>
-                </div>
-            </div>
-
-            <div class="sticky">
-                <div class="cta">
-                    <button
-                        class="btn ghost"
-                        onclick="backTo('sheet-disease','sheet-method')"
-                    >
-                        Назад
-                    </button>
-                    <button class="btn" onclick="goContacts()">Далее</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ШАГ 4: контактные данные -->
-        <div id="sheet-contacts" class="sheet" role="dialog" aria-modal="true">
-            <div class="title">Контакты</div>
+        <!-- УПРОЩЕННАЯ ФОРМА: все в одном окне -->
+        <div id="sheet-form" class="sheet" role="dialog" aria-modal="true">
+            <div class="title">Подать заявку</div>
+            <div class="subtitle">Заполните форму для связи с нами</div>
+            
             <div class="grid">
+                <!-- Выбор услуги -->
                 <div class="field">
-                    <label>Телефон (международный формат)</label>
+                    <label>Какая услуга вас интересует?</label>
+                    <div class="service-grid" id="service-options">
+                        <div class="service-option sel" data-val="treatment">Лечение/диагностика/реабилитация</div>
+                        <div class="service-option" data-val="medicines">Заказ медикаментов</div>
+                        <div class="service-option" data-val="second_opinion">«Второе мнение» немецкого специалиста</div>
+                        <div class="service-option" data-val="translation">Перевод документов</div>
+                    </div>
+                </div>
+
+                <!-- Описание запроса -->
+                <div class="field">
+                    <label>Опишите ваш запрос</label>
+                    <textarea
+                        id="inp-request"
+                        placeholder="Например: консультация онколога, второе мнение по результатам МРТ..."
+                    ></textarea>
+                    <div class="hint">Минимум 10 символов</div>
+                </div>
+
+                <!-- Способ связи -->
+                <div class="field">
+                    <label>Как удобнее связаться?</label>
+                    <div class="method" id="method-opts">
+                        <div class="opt sel" data-val="WhatsApp">
+                            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path
+                                    fill="#25D366"
+                                    d="M20.52 3.48A11.86 11.86 0 0 0 12.06 0C5.49 0 .16 5.33.16 11.9c0 2.09.55 4.14 1.59 5.94L0 24l6.33-1.66a11.86 11.86 0 0 0 5.73 1.46h.01c6.57 0 11.9-5.33 11.9-11.9 0-3.17-1.23-6.15-3.45-8.42zM12.07 21.4h-.01a9.5 9.5 0 0 1-4.84-1.33l-.35-.2-3.76.98.99-3.66-.23-.37a9.5 9.5 0 1 1 8.2 4.58zm5.51-7.14c-.3-.15-1.77-.87-2.04-.97-.27-.1-.46-.15-.66.15-.19.3-.76.97-.93 1.17-.17.2-.34.22-.64.07-.3-.15-1.27-.47-2.42-1.5-.9-.8-1.51-1.78-1.69-2.08-.18-.3-.02-.46.13-.61.13-.13.3-.34.44-.51.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.66-1.59-.91-2.18-.24-.58-.48-.5-.66-.51l-.56-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.22 3.08.15.2 2.1 3.2 5.1 4.49.71.31 1.26.5 1.69.63.71.22 1.36.19 1.87.11.57-.08 1.77-.72 2.02-1.41.25-.69.25-1.28.17-1.41-.07-.13-.27-.2-.56-.35z"
+                                />
+                            </svg>
+                            <b>WhatsApp</b>
+                        </div>
+                        <div class="opt" data-val="Telegram">
+                            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path
+                                    fill="#0088CC"
+                                    d="M9.999 15.2 9.9 19c.4 0 .6-.2.9-.4l2.2-2 4.5 3.3c.8.5 1.4.2 1.6-.8l2.9-13.5c.3-1.2-.4-1.7-1.2-1.4L2.1 9.1C.9 9.6.9 10.3 1.9 10.6l4.7 1.5L18.6 5c.5-.3 1-.1.6.2L9.999 15.2z"
+                                />
+                            </svg>
+                            <b>Telegram</b>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Контактные данные -->
+                <div class="field">
+                    <label>Телефон</label>
                     <input
                         id="inp-phone"
                         type="tel"
@@ -390,10 +396,9 @@
                         pattern="^\+[1-9]\d{1,14}$"
                         required
                     />
-                    <div class="hint">
-                        Пример E.164: +14155552671 (до 15 цифр).*
-                    </div>
+                    <div class="hint">Международный формат с кодом страны</div>
                 </div>
+
                 <div class="field">
                     <label>Email (необязательно)</label>
                     <input
@@ -401,61 +406,26 @@
                         type="email"
                         placeholder="name@example.com"
                     />
-                    <div class="hint">
-                        Почта проверяется встроенной валидацией HTML5.
+                </div>
+
+                <!-- Предпочтительное время связи -->
+                <div class="field">
+                    <label>Предпочтительное время для связи</label>
+                    <div class="time-options" id="time-options">
+                        <div class="time-option sel" data-val="morning">До обеда</div>
+                        <div class="time-option" data-val="afternoon">После обеда</div>
+                        <div class="time-option" data-val="evening">Вечером</div>
                     </div>
                 </div>
             </div>
-            <div class="sticky">
-                <div class="cta">
-                    <button
-                        class="btn ghost"
-                        onclick="backTo('sheet-method','sheet-contacts')"
-                    >
-                        Назад
-                    </button>
-                    <button class="btn" onclick="goComment()">Далее</button>
-                </div>
-            </div>
-        </div>
 
-        <!-- ШАГ 5: комментарий -->
-        <div id="sheet-comment" class="sheet" role="dialog" aria-modal="true">
-            <div class="title">Комментарий (необязательно)</div>
-            <div class="field">
-                <textarea
-                    id="inp-comment"
-                    placeholder="Предпочтительные даты, врач, детали..."
-                ></textarea>
-            </div>
             <div class="sticky">
                 <div class="cta">
                     <button
                         class="btn ghost"
-                        onclick="backTo('sheet-contacts','sheet-comment')"
+                        onclick="closeSheet('sheet-form')"
                     >
-                        Назад
-                    </button>
-                    <button class="btn" onclick="goPreview()">Далее</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ШАГ 6: превью -->
-        <div id="sheet-preview" class="sheet" role="dialog" aria-modal="true">
-            <div class="title">Проверьте заявку</div>
-            <div
-                id="preview"
-                class="grid"
-                style="gap: 6px; margin: 8px 0 12px"
-            ></div>
-            <div class="sticky">
-                <div class="cta">
-                    <button
-                        class="btn ghost"
-                        onclick="backTo('sheet-comment','sheet-preview')"
-                    >
-                        Назад
+                        Отмена
                     </button>
                     <button class="btn" onclick="submitApp()">
                         Подать заявку
@@ -472,51 +442,43 @@
 
             // состояние
             const state = {
-                country: null,
-                disease: "",
+                service: "treatment",
+                request: "",
                 method: "WhatsApp",
                 phone: "",
                 email: null,
-                comment: null,
+                time: "morning",
             };
 
-            // страны
-            const COUNTRY_LIST = ["Германия", "Англия", "Абхазия", "Дубай"];
-
-            // отрисовка стран с "Coming soon" кроме Германии
-            function renderCountries() {
-                const root = $("countries");
-                root.innerHTML = "";
-                COUNTRY_LIST.forEach((name) => {
-                    const b = document.createElement("div");
-                    b.className = "chip";
-                    b.textContent = name;
-                    b.onclick = () => {
-                        // доступна только Германия
-                        if (name !== "Германия") {
-                            alert(
-                                "Пока доступна только Германия. Остальные — скоро.",
-                            );
-                            return;
-                        }
-                        state.country = name;
-                        [...root.children].forEach((n) =>
-                            n.classList.remove("sel"),
-                        );
-                        b.classList.add("sel");
+            // инициализация
+            function initForm() {
+                // Выбор услуги
+                for (const el of $("service-options").querySelectorAll(".service-option")) {
+                    el.onclick = () => {
+                        for (const n of $("service-options").children)
+                            n.classList.remove("sel");
+                        el.classList.add("sel");
+                        state.service = el.getAttribute("data-val");
                     };
-                    root.appendChild(b);
-                });
-            }
+                }
 
-            // методы связи (переключатель)
-            function initMethod() {
+                // Выбор способа связи
                 for (const el of $("method-opts").querySelectorAll(".opt")) {
                     el.onclick = () => {
                         for (const n of $("method-opts").children)
                             n.classList.remove("sel");
                         el.classList.add("sel");
                         state.method = el.getAttribute("data-val");
+                    };
+                }
+
+                // Выбор времени
+                for (const el of $("time-options").querySelectorAll(".time-option")) {
+                    el.onclick = () => {
+                        for (const n of $("time-options").children)
+                            n.classList.remove("sel");
+                        el.classList.add("sel");
+                        state.time = el.getAttribute("data-val");
                     };
                 }
             }
@@ -530,43 +492,22 @@
                 $(id).classList.remove("show");
                 $("overlay").classList.remove("show");
             }
-            function backTo(prevId, currId) {
-                $(currId).classList.remove("show");
-                $(prevId).classList.add("show");
-            }
 
-            // шаги
+            // открытие формы
             $("ctaStart").onclick = () => {
-                renderCountries();
-                openSheet("sheet-country");
+                initForm();
+                openSheet("sheet-form");
             };
 
-            function goDisease() {
-                if (state.country !== "Германия") {
-                    alert("Выберите Германию (пока доступна только она).");
-                    return;
-                }
-                closeSheet("sheet-country");
-                openSheet("sheet-disease");
-            }
+            // Автоматическое открытие формы при загрузке страницы
+            document.addEventListener('DOMContentLoaded', function() {
+                initForm();
+                openSheet("sheet-form");
+            });
 
-            function goContactMethod() {
-                const txt = $("inp-disease").value.trim();
-                if (txt.length < 5) {
-                    alert(
-                        "Опишите запрос чуть подробнее (минимум 5 символов).",
-                    );
-                    return;
-                }
-                state.disease = txt;
-                closeSheet("sheet-disease");
-                openSheet("sheet-method");
-                initMethod();
-            }
-
-            function goContacts() {
-                closeSheet("sheet-method");
-                openSheet("sheet-contacts");
+            function resetFlow() {
+                $("scr-done").style.display = "none";
+                $("scr-home").style.display = "block";
             }
 
             function sanitizePhone(raw) {
@@ -577,15 +518,20 @@
                 return s;
             }
 
-            // ЗАМЕНИ старую функцию goComment на эту
-            function goComment() {
-                const phone = document.getElementById("inp-phone");
-                phone.value = sanitizePhone(phone.value); // нормализуем перед проверкой
+            function submitApp() {
+                // Валидация
+                const request = $("inp-request").value.trim();
+                if (request.length < 10) {
+                    alert("Опишите запрос подробнее (минимум 10 символов).");
+                    $("inp-request").focus();
+                    return;
+                }
+                state.request = request;
 
+                const phone = document.getElementById("inp-phone");
+                phone.value = sanitizePhone(phone.value);
                 if (!phone.checkValidity()) {
-                    alert(
-                        "Укажите телефон в международном формате E.164 (пример: +14155552671).",
-                    );
+                    alert("Укажите телефон в международном формате (пример: +491234567890).");
                     phone.focus();
                     return;
                 }
@@ -593,58 +539,32 @@
 
                 const email = $("inp-email").value.trim();
                 if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-                    // <-- без двойных слэшей
                     alert("Похоже, e-mail введён с ошибкой.");
                     return;
                 }
-
                 state.email = email || null;
 
-                closeSheet("sheet-contacts");
-                openSheet("sheet-comment");
-            }
-
-            function goPreview() {
-                state.comment = $("inp-comment").value.trim() || null;
-                const p = $("preview");
-                p.innerHTML = `
-        <div><b>Страна:</b> ${state.country}</div>
-        <div><b>Запрос:</b> ${escapeHTML(state.disease)}</div>
-        <div><b>Связь:</b> ${state.method}</div>
-        <div><b>Телефон:</b> ${escapeHTML(state.phone)}</div>
-        <div><b>Email:</b> ${state.email ? escapeHTML(state.email) : "—"}</div>
-        <div><b>Комментарий:</b> ${state.comment ? escapeHTML(state.comment) : "—"}</div>
-      `;
-                closeSheet("sheet-comment");
-                openSheet("sheet-preview");
-            }
-
-            function resetFlow() {
-                $("scr-done").style.display = "none";
-                $("scr-home").style.display = "block";
-            }
-
-            function submitApp() {
+                // Отправка данных
                 const payload = {
-                    country: state.country,
-                    disease: state.disease,
+                    service: state.service,
+                    request: state.request,
                     method: state.method,
-                    contact: state.phone,
+                    phone: state.phone,
                     email: state.email,
-                    comment: state.comment,
+                    time: state.time,
                     ts: Date.now(),
                 };
+
                 if (tg) {
-                    tg.sendData(JSON.stringify(payload)); // прилетит в бота как web_app_data
+                    tg.sendData(JSON.stringify(payload));
                     alert("Заявка отправлена. Спасибо!");
                     tg.close();
                 } else {
                     console.log("Demo payload:", payload);
                     alert("Откройте форму из Telegram для реальной отправки.");
-                    // показать экран "готово" для браузерного демо
                     $("scr-home").style.display = "none";
                     $("scr-done").style.display = "block";
-                    closeSheet("sheet-preview");
+                    closeSheet("sheet-form");
                 }
             }
 
