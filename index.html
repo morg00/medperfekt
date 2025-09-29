@@ -1,581 +1,310 @@
 <!doctype html>
 <html lang="ru">
-    <head>
-        <meta charset="utf-8" />
-        <meta
-            name="viewport"
-            content="width=device-width,initial-scale=1,viewport-fit=cover"
-        />
-        <meta name="robots" content="noindex,nofollow" />
-        <title>Medperfekt — Заявка</title>
-        <script src="https://telegram.org/js/telegram-web-app.js"></script>
-        <style>
-            :root {
-                /* палитра под сайт: белый + тёмный текст + бирюзовый акцент */
-                --bg: #f6fbfc;
-                --card: #ffffff;
-                --ink: #0e2733;
-                --muted: #6b7a86;
-                --accent: #12c2b0; /* бирюзовый CTA */
-                --accent-ghost: #e6faf7; /* мягкий фон акцента */
-                --ring: #b8efe8;
-                --radius: 18px;
-                --shadow: 0 14px 40px rgba(10, 40, 50, 0.08);
-                --speed: 0.32s;
-            }
-            * {
-                box-sizing: border-box;
-            }
-            html,
-            body {
-                margin: 0;
-                height: 100%;
-                font-family:
-                    system-ui,
-                    -apple-system,
-                    Segoe UI,
-                    Inter,
-                    Roboto,
-                    Arial;
-            }
-            body {
-                background: var(--bg);
-                color: var(--ink);
-            }
-            .wrap {
-                max-width: 760px;
-                margin: 0 auto;
-                padding: 20px 16px calc(24px + env(safe-area-inset-bottom));
-            }
-            .brand {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                margin: 2px 0 16px;
-            }
-            .logo {
-                width: 44px;
-                height: 44px;
-                border-radius: 14px;
-                background: #0bbfaa url("photo.jpg") center/cover no-repeat;
-                box-shadow: 0 6px 18px rgba(11, 191, 170, 0.22);
-            }
-            .brand h2 {
-                margin: 0;
-                font-size: 18px;
-                font-weight: 800;
-                letter-spacing: 0.2px;
-            }
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Medperfekt — Заявка</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+      :root{
+        --bg:#f6fbfc; --card:#fff; --ink:#0e2733; --muted:#6b7a86;
+        --accent:#12c2b0; --accent-ghost:#e6faf7; --ring:#b8efe8;
+        --radius:18px; --shadow:0 14px 40px rgba(10,40,50,.08);
+      }
+      *{box-sizing:border-box}
+      html,body{margin:0}
+      body{min-height:100dvh;background:var(--bg);color:var(--ink);
+           font-family:system-ui,-apple-system,Segoe UI,Inter,Roboto,Arial}
+      .wrap{max-width:760px;margin:0 auto;padding:20px 16px calc(20px + env(safe-area-inset-bottom))}
+      .brand{display:flex;align-items:center;gap:12px;margin:2px 0 16px}
+      .logo{width:44px;height:44px;border-radius:14px;background:#0bbfaa url("photo.jpg") center/cover no-repeat;box-shadow:0 6px 18px rgba(11,191,170,.22)}
+      .brand h2{margin:0;font-size:18px;font-weight:800;letter-spacing:.2px}
 
-            .card {
-                background: var(--card);
-                border-radius: var(--radius);
-                box-shadow: var(--shadow);
-                border: 1px solid #edf3f5;
-                padding: 18px;
-            }
-            h1 {
-                font-size: 22px;
-                margin: 2px 0 10px;
-            }
-            .muted {
-                color: var(--muted);
-                font-size: 14px;
-            }
-            .btn {
-                height: 54px;
-                border-radius: 16px;
-                border: 0;
-                background: var(--accent);
-                color: #fff;
-                font-weight: 700;
-                cursor: pointer;
-                padding: 0 20px;
-            }
-            .btn.ghost {
-                background: var(--accent-ghost);
-                color: #064e47;
-                border: 1px solid #d2f4ee;
-            }
-            .btn.outline {
-                background: #fff;
-                border: 1px solid #e3edf0;
-                color: var(--ink);
-            }
-            .grid {
-                display: grid;
-                gap: 12px;
-            }
-            .row {
-                display: flex;
-                gap: 10px;
-                align-items: center;
-                flex-wrap: wrap;
-            }
-            .field {
-                display: grid;
-                gap: 6px;
-            }
-            label {
-                font-size: 14px;
-                color: var(--muted);
-            }
-            input,
-            select,
-            textarea {
-                width: 100%;
-                padding: 12px 14px;
-                border: 1px solid #e3edf0;
-                border-radius: 14px;
-                background: #fff;
-                font-size: 16px;
-            }
-            textarea {
-                min-height: 96px;
-                resize: vertical;
-            }
-            .chips {
-                display: flex;
-                gap: 10px;
-                flex-wrap: wrap;
-            }
-            .chip {
-                padding: 10px 14px;
-                border-radius: 999px;
-                border: 1px solid #e7f1f3;
-                background: #fff;
-                cursor: pointer;
-            }
-            .chip.sel {
-                background: var(--accent-ghost);
-                border-color: #c9efe8;
-            }
-            .sticky {
-                position: sticky;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                margin-top: 12px;
-                background: linear-gradient(
-                    180deg,
-                    rgba(246, 251, 252, 0),
-                    var(--bg) 40%
-                );
-                padding-top: 10px;
-            }
-            .cta {
-                display: flex;
-                gap: 10px;
-                flex-wrap: wrap;
-            }
-            .ok {
-                font-size: 56px;
-                text-align: center;
-            }
+      .card{background:var(--card);border-radius:22px;box-shadow:var(--shadow);border:1px solid #edf3f5;padding:18px}
+      h1{font-size:22px;margin:2px 0 10px}
+      .muted{color:var(--muted);font-size:14px}
 
-            /* шаги как всплывающие панели снизу */
-            .sheet {
-                position: fixed;
-                left: 0;
-                right: 0;
-                bottom: -100%;
-                background: var(--card);
-                border-top-left-radius: 22px;
-                border-top-right-radius: 22px;
-                box-shadow: 0 -18px 60px rgba(0, 0, 0, 0.12);
-                border: 1px solid #eaf2f4;
-                max-width: 760px;
-                margin: 0 auto;
-                padding: 18px 16px;
-                transition:
-                    transform var(--speed) ease,
-                    opacity var(--speed) ease;
-                transform: translateY(100%);
-                opacity: 0;
-            }
-            .sheet.show {
-                transform: translateY(0);
-                bottom: 0;
-                opacity: 1;
-            }
-            .sheet .title {
-                font-size: 18px;
-                font-weight: 700;
-                margin: 0 0 8px;
-            }
-            .sheet .subtitle {
-                font-size: 14px;
-                color: var(--muted);
-                margin: 0 0 12px;
-            }
-            .overlay {
-                position: fixed;
-                inset: 0;
-                background: rgba(0, 0, 0, 0.18);
-                opacity: 0;
-                pointer-events: none;
-                transition: opacity var(--speed);
-            }
-            .overlay.show {
-                opacity: 1;
-                pointer-events: auto;
-            }
+      .grid{display:grid;gap:14px}
+      .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+      .field{display:grid;gap:8px}
+      label{font-size:15px;color:var(--ink);font-weight:700}
 
-            /* иконки способов связи */
-            .method {
-                display: flex;
-                gap: 12px;
-            }
-            .method .opt {
-                flex: 1;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                border: 1px solid #e3edf0;
-                border-radius: 14px;
-                padding: 12px;
-                cursor: pointer;
-                background: #fff;
-            }
-            .method .opt.sel {
-                border-color: #b9efe7;
-                background: var(--accent-ghost);
-            }
-            .method .icon {
-                width: 28px;
-                height: 28px;
-                border-radius: 7px;
-                display: block;
-            }
+      input,select,textarea{
+        width:100%;padding:13px 14px;border:1px solid #e3edf0;border-radius:14px;
+        background:#fff;font-size:16px;line-height:1.2;outline:none
+      }
+      input:focus,textarea:focus,select:focus{border-color:var(--ring);box-shadow:0 0 0 4px rgba(18,194,176,.12)}
+      ::placeholder{color:#9aa8b2}
+      textarea{min-height:110px;resize:vertical}
 
-            .hint {
-                font-size: 12px;
-                color: #7a8b96;
-            }
+      .btn{height:54px;border-radius:16px;border:0;background:var(--accent);color:#fff;
+           font-weight:800;cursor:pointer;padding:0 20px}
+      .btn:disabled{opacity:.6;cursor:not-allowed}
+      .btn.ghost{background:var(--accent-ghost);color:#064e47;border:1px solid #d2f4ee}
+      .btn.outline{background:#fff;border:1px solid #e3edf0;color:var(--ink)}
+      .cta{display:flex;gap:10px;flex-wrap:wrap}
 
-            /* Стили для выбора услуг */
-            .service-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-            .service-option {
-                padding: 16px 12px;
-                border: 1px solid #e3edf0;
-                border-radius: 14px;
-                background: #fff;
-                cursor: pointer;
-                text-align: center;
-                font-size: 14px;
-                font-weight: 500;
-            }
-            .service-option.sel {
-                border-color: #b9efe7;
-                background: var(--accent-ghost);
-            }
+      /* карточные опции */
+      .method{display:flex;gap:12px}
+      .method .opt{flex:1;display:flex;align-items:center;gap:10px;border:1px solid #e3edf0;border-radius:14px;padding:12px;cursor:pointer;background:#fff;color:#5b6b76}
+      .method .opt b{color:#2b3b45}
+      .method .opt.sel{border-color:#b9efe7;background:var(--accent-ghost);color:#0e2733}
+      .method .icon{width:28px;height:28px;border-radius:7px;display:block}
 
-            /* Стили для времени связи */
-            .time-options {
-                display: grid;
-                grid-template-columns: 1fr 1fr 1fr;
-                gap: 10px;
-            }
-            .time-option {
-                padding: 12px 8px;
-                border: 1px solid #e3edf0;
-                border-radius: 12px;
-                background: #fff;
-                cursor: pointer;
-                text-align: center;
-                font-size: 13px;
-            }
-            .time-option.sel {
-                border-color: #b9efe7;
-                background: var(--accent-ghost);
-            }
-        </style>
-    </head>
-    <body>
-        <div class="wrap">
-            <div class="brand">
-                <div class="logo"></div>
-                <h2>Medperfekt</h2>
+      .service-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+      .service-option{padding:16px 12px;border:1px solid #e3edf0;border-radius:14px;background:#fff;cursor:pointer;text-align:center;font-size:14px;font-weight:600;color:#5b6b76}
+      .service-option.sel{border-color:#b9efe7;background:var(--accent-ghost);color:#0e2733}
+
+      .time-options{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+      .time-option{padding:12px 10px;border:1px solid #e3edf0;border-radius:12px;background:#fff;cursor:pointer;text-align:center;font-size:13px;color:#5b6b76}
+      .time-option.sel{border-color:#b9efe7;background:var(--accent-ghost);color:#0e2733}
+
+      .hint{font-size:12px;color:#7a8b96}
+
+      /* липкая область действий без fixed (не конфликтует с клавиатурой) */
+      .sticky{position:sticky;bottom:0;margin-top:10px;background:linear-gradient(180deg,rgba(246,251,252,0),var(--bg) 40%);padding-top:8px}
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo"></div>
+        <h2>Medperfekt</h2>
+      </div>
+
+      <!-- форма статично, без выдвижения -->
+      <section id="form" class="card" role="form" aria-label="Подать заявку">
+        <h1 style="margin-bottom:6px">Подать заявку</h1>
+        <p class="muted" style="margin-top:0">Заполните форму для связи с нами</p>
+
+        <div class="grid">
+          <!-- Услуги -->
+          <div class="field">
+            <label>Какая услуга вас интересует?</label>
+            <div class="service-grid" id="service-options">
+              <div class="service-option sel" data-val="treatment">Лечение/диагностика/реабилитация</div>
+              <div class="service-option" data-val="medicines">Заказ медикаментов</div>
+              <div class="service-option" data-val="second_opinion">«Второе мнение» немецкого специалиста</div>
+              <div class="service-option" data-val="translation">Перевод документов</div>
             </div>
+          </div>
 
-            <!-- WELCOME (скрыт, так как форма открывается сразу) -->
-            <section id="scr-home" class="card" style="display: none;">
-                <h1>Лечение в лучших клиниках Германии</h1>
-                <p class="muted">
-                    Организация диагностики, лечения и реабилитации — мы берём
-                    заботы на себя.
-                </p>
-                <div class="row">
-                    <button class="btn" id="ctaStart">Подать заявку</button>
-                </div>
-            </section>
+          <!-- Описание -->
+          <div class="field">
+            <label>Опишите ваш запрос</label>
+            <textarea id="inp-request" placeholder="Например: консультация онколога, второе мнение по результатам МРТ..."></textarea>
+            <div class="hint">Минимум 10 символов</div>
+          </div>
 
-            <!-- Плашка "готово" после отправки -->
-            <section
-                id="scr-done"
-                class="card"
-                style="display: none; text-align: center"
-            >
-                <div class="ok">✅</div>
-                <h1>Заявка отправлена</h1>
-                <p class="muted">Мы свяжемся с вами в ближайшее время.</p>
-                <div class="row" style="justify-content: center">
-                    <button class="btn outline" onclick="resetFlow()">
-                        На главную
-                    </button>
-                </div>
-            </section>
+          <!-- Способ связи -->
+          <div class="field">
+            <label>Как удобнее связаться?</label>
+            <div class="method" id="method-opts">
+              <div class="opt sel" data-val="WhatsApp">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="#25D366" d="M20.52 3.48A11.86 11.86 0 0 0 12.06 0C5.49 0 .16 5.33.16 11.9c0 2.09.55 4.14 1.59 5.94L0 24l6.33-1.66a11.86 11.86 0 0 0 5.73 1.46h.01c6.57 0 11.9-5.33 11.9-11.9 0-3.17-1.23-6.15-3.45-8.42zM12.07 21.4h-.01a9.5 9.5 0 0 1-4.84-1.33l-.35-.2-3.76.98.99-3.66-.23-.37a9.5 9.5 0 1 1 8.2 4.58zm5.51-7.14c-.3-.15-1.77-.87-2.04-.97-.27-.1-.46-.15-.66.15-.19.3-.76.97-.93 1.17-.17.2-.34.22-.64.07-.3-.15-1.27-.47-2.42-1.5-.9-.8-1.51-1.78-1.69-2.08-.18-.3-.02-.46.13-.61.13-.13.3-.34.44-.51.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.66-1.59-.91-2.18-.24-.58-.48-.5-.66-.51l-.56-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.22 3.08.15.2 2.1 3.2 5.1 4.49.71.31 1.26.5 1.69.63.71.22 1.36.19 1.87.11.57-.08 1.77-.72 2.02-1.41.25-.69.25-1.28.17-1.41-.07-.13-.27-.2-.56-.35z"/></svg>
+                <b>WhatsApp</b>
+              </div>
+              <div class="opt" data-val="Telegram">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="#0088CC" d="M9.999 15.2 9.9 19c.4 0 .6-.2.9-.4l2.2-2 4.5 3.3c.8.5 1.4.2 1.6-.8l2.9-13.5c.3-1.2-.4-1.7-1.2-1.4L2.1 9.1C.9 9.6.9 10.3 1.9 10.6l4.7 1.5L18.6 5c.5-.3 1-.1.6.2L9.999 15.2z"/></svg>
+                <b>Telegram</b>
+              </div>
+            </div>
+          </div>
+
+          <!-- Телефон -->
+          <div class="field">
+            <label>Телефон</label>
+            <input id="inp-phone" type="tel" inputmode="tel"
+                   placeholder="+7"
+                   pattern="^\\+[1-9]\\d{1,14}$" required />
+            <div class="hint">Международный формат с кодом страны</div>
+          </div>
+
+          <!-- Email -->
+          <div class="field">
+            <label>Email (необязательно)</label>
+            <input id="inp-email" type="email" placeholder="name@example.com" />
+          </div>
+
+          <!-- Время связи -->
+          <div class="field">
+            <label>Предпочтительное время для связи</label>
+            <div class="time-options" id="time-options">
+              <div class="time-option sel" data-val="morning">До обеда</div>
+              <div class="time-option" data-val="afternoon">После обеда</div>
+              <div class="time-option" data-val="evening">Вечером</div>
+            </div>
+          </div>
         </div>
 
-        <div id="overlay" class="overlay"></div>
-
-        <!-- УПРОЩЕННАЯ ФОРМА: все в одном окне -->
-        <div id="sheet-form" class="sheet" role="dialog" aria-modal="true">
-            <div class="title">Подать заявку</div>
-            <div class="subtitle">Заполните форму для связи с нами</div>
-            
-            <div class="grid">
-                <!-- Выбор услуги -->
-                <div class="field">
-                    <label>Какая услуга вас интересует?</label>
-                    <div class="service-grid" id="service-options">
-                        <div class="service-option sel" data-val="treatment">Лечение/диагностика/реабилитация</div>
-                        <div class="service-option" data-val="medicines">Заказ медикаментов</div>
-                        <div class="service-option" data-val="second_opinion">«Второе мнение» немецкого специалиста</div>
-                        <div class="service-option" data-val="translation">Перевод документов</div>
-                    </div>
-                </div>
-
-                <!-- Описание запроса -->
-                <div class="field">
-                    <label>Опишите ваш запрос</label>
-                    <textarea
-                        id="inp-request"
-                        placeholder="Например: консультация онколога, второе мнение по результатам МРТ..."
-                    ></textarea>
-                    <div class="hint">Минимум 10 символов</div>
-                </div>
-
-                <!-- Способ связи -->
-                <div class="field">
-                    <label>Как удобнее связаться?</label>
-                    <div class="method" id="method-opts">
-                        <div class="opt sel" data-val="WhatsApp">
-                            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                                <path
-                                    fill="#25D366"
-                                    d="M20.52 3.48A11.86 11.86 0 0 0 12.06 0C5.49 0 .16 5.33.16 11.9c0 2.09.55 4.14 1.59 5.94L0 24l6.33-1.66a11.86 11.86 0 0 0 5.73 1.46h.01c6.57 0 11.9-5.33 11.9-11.9 0-3.17-1.23-6.15-3.45-8.42zM12.07 21.4h-.01a9.5 9.5 0 0 1-4.84-1.33l-.35-.2-3.76.98.99-3.66-.23-.37a9.5 9.5 0 1 1 8.2 4.58zm5.51-7.14c-.3-.15-1.77-.87-2.04-.97-.27-.1-.46-.15-.66.15-.19.3-.76.97-.93 1.17-.17.2-.34.22-.64.07-.3-.15-1.27-.47-2.42-1.5-.9-.8-1.51-1.78-1.69-2.08-.18-.3-.02-.46.13-.61.13-.13.3-.34.44-.51.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.66-1.59-.91-2.18-.24-.58-.48-.5-.66-.51l-.56-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.22 3.08.15.2 2.1 3.2 5.1 4.49.71.31 1.26.5 1.69.63.71.22 1.36.19 1.87.11.57-.08 1.77-.72 2.02-1.41.25-.69.25-1.28.17-1.41-.07-.13-.27-.2-.56-.35z"
-                                />
-                            </svg>
-                            <b>WhatsApp</b>
-                        </div>
-                        <div class="opt" data-val="Telegram">
-                            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                                <path
-                                    fill="#0088CC"
-                                    d="M9.999 15.2 9.9 19c.4 0 .6-.2.9-.4l2.2-2 4.5 3.3c.8.5 1.4.2 1.6-.8l2.9-13.5c.3-1.2-.4-1.7-1.2-1.4L2.1 9.1C.9 9.6.9 10.3 1.9 10.6l4.7 1.5L18.6 5c.5-.3 1-.1.6.2L9.999 15.2z"
-                                />
-                            </svg>
-                            <b>Telegram</b>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Контактные данные -->
-                <div class="field">
-                    <label>Телефон</label>
-                    <input
-                        id="inp-phone"
-                        type="tel"
-                        inputmode="tel"
-                        placeholder="+491234567890"
-                        pattern="^\+[1-9]\d{1,14}$"
-                        required
-                    />
-                    <div class="hint">Международный формат с кодом страны</div>
-                </div>
-
-                <div class="field">
-                    <label>Email (необязательно)</label>
-                    <input
-                        id="inp-email"
-                        type="email"
-                        placeholder="name@example.com"
-                    />
-                </div>
-
-                <!-- Предпочтительное время связи -->
-                <div class="field">
-                    <label>Предпочтительное время для связи</label>
-                    <div class="time-options" id="time-options">
-                        <div class="time-option sel" data-val="morning">До обеда</div>
-                        <div class="time-option" data-val="afternoon">После обеда</div>
-                        <div class="time-option" data-val="evening">Вечером</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="sticky">
-                <div class="cta">
-                    <button
-                        class="btn ghost"
-                        onclick="closeSheet('sheet-form')"
-                    >
-                        Отмена
-                    </button>
-                    <button class="btn" onclick="submitApp()">
-                        Подать заявку
-                    </button>
-                </div>
-            </div>
+        <div class="sticky">
+          <div class="cta">
+            <button class="btn ghost" type="button" id="btn-cancel">Отмена</button>
+            <button class="btn" type="button" id="btn-submit">Подать заявку</button>
+          </div>
         </div>
+      </section>
 
-        <script>
-            const tg = window.Telegram?.WebApp;
-            tg?.ready();
-            tg?.expand();
-            const $ = (id) => document.getElementById(id);
+      <!-- экран "готово" для демо-режима -->
+      <section id="scr-done" class="card" style="display:none;text-align:center">
+        <div style="font-size:56px">✅</div>
+        <h1>Заявка отправлена</h1>
+        <p class="muted">Мы свяжемся с вами в ближайшее время.</p>
+        <div class="row" style="justify-content:center">
+          <button class="btn outline" type="button" id="btn-home">На главную</button>
+        </div>
+      </section>
+    </div>
 
-            // состояние
-            const state = {
-                service: "treatment",
-                request: "",
-                method: "WhatsApp",
-                phone: "",
-                email: null,
-                time: "morning",
-            };
+    <script>
+      const tg = window.Telegram?.WebApp;
+      tg?.ready();
+      // Не расширяем на весь экран насильно; пусть Телеграм сам управляет.
 
-            // инициализация
-            function initForm() {
-                // Выбор услуги
-                for (const el of $("service-options").querySelectorAll(".service-option")) {
-                    el.onclick = () => {
-                        for (const n of $("service-options").children)
-                            n.classList.remove("sel");
-                        el.classList.add("sel");
-                        state.service = el.getAttribute("data-val");
-                    };
-                }
+      const $ = (id)=>document.getElementById(id);
 
-                // Выбор способа связи
-                for (const el of $("method-opts").querySelectorAll(".opt")) {
-                    el.onclick = () => {
-                        for (const n of $("method-opts").children)
-                            n.classList.remove("sel");
-                        el.classList.add("sel");
-                        state.method = el.getAttribute("data-val");
-                    };
-                }
+      // Состояние
+      const state = { service:"treatment", request:"", method:"WhatsApp", phone:"", email:null, time:"morning" };
 
-                // Выбор времени
-                for (const el of $("time-options").querySelectorAll(".time-option")) {
-                    el.onclick = () => {
-                        for (const n of $("time-options").children)
-                            n.classList.remove("sel");
-                        el.classList.add("sel");
-                        state.time = el.getAttribute("data-val");
-                    };
-                }
-            }
+      // Выборы
+      function bindSelectable(containerId, itemClass, key){
+        const box = $(containerId);
+        for (const el of box.querySelectorAll('.'+itemClass)){
+          el.onclick = ()=>{
+            for (const n of box.children) n.classList.remove('sel');
+            el.classList.add('sel');
+            state[key] = el.getAttribute('data-val');
+          };
+        }
+      }
 
-            // управление панелями
-            function openSheet(id) {
-                $("overlay").classList.add("show");
-                $(id).classList.add("show");
-            }
-            function closeSheet(id) {
-                $(id).classList.remove("show");
-                $("overlay").classList.remove("show");
-            }
+      // Телефон: авто-код страны (простая эвристика)
+      function guessCountryCode(){
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+        const lang = (tg?.initDataUnsafe?.user?.language_code || navigator.language || 'en').toLowerCase();
 
-            // открытие формы
-            $("ctaStart").onclick = () => {
-                initForm();
-                openSheet("sheet-form");
-            };
+        // быстрые маркеры
+        const mapByLang = {
+          'ru': '+7', 'kk': '+7', 'kz': '+7',
+          'en-us': '+1', 'en': '+1',
+          'cs': '+420', 'sk': '+421',
+          'de': '+49', 'tr': '+90', 'uk': '+380', 'ua': '+380',
+          'pl': '+48', 'fr': '+33', 'es': '+34', 'it': '+39',
+        };
+        const mapByTZ = {
+          'Europe/Moscow': '+7', 'Asia/Almaty': '+7', 'Asia/Aqtau': '+7',
+          'America/New_York': '+1', 'America/Los_Angeles': '+1',
+          'Europe/Prague': '+420', 'Europe/Berlin': '+49'
+        };
 
-            // Автоматическое открытие формы при загрузке страницы
-            document.addEventListener('DOMContentLoaded', function() {
-                initForm();
-                openSheet("sheet-form");
-            });
+        // точные
+        if (mapByTZ[tz]) return mapByTZ[tz];
+        if (mapByLang[lang]) return mapByLang[lang];
 
-            function resetFlow() {
-                $("scr-done").style.display = "none";
-                $("scr-home").style.display = "block";
-            }
+        // префиксы
+        if (lang.startsWith('ru')) return '+7';
+        if (lang.startsWith('cs')) return '+420';
+        if (lang.startsWith('de')) return '+49';
+        if (lang.startsWith('tr')) return '+90';
+        if (lang.startsWith('uk') || lang.startsWith('ua')) return '+380';
+        if (tz.startsWith('America/')) return '+1';
 
-            function sanitizePhone(raw) {
-                // пробелы, дефисы, точки, скобки, неразрывные пробелы — убрать
-                let s = raw.replace(/[\u00A0\s\-\.\(\)]/g, "");
-                // оставить только первую '+' и цифры
-                s = s.replace(/(?!^)\+/g, "").replace(/[^\d+]/g, "");
-                return s;
-            }
+        return '+49'; // дефолт — Германия (по тематике проекта)
+      }
 
-            function submitApp() {
-                // Валидация
-                const request = $("inp-request").value.trim();
-                if (request.length < 10) {
-                    alert("Опишите запрос подробнее (минимум 10 символов).");
-                    $("inp-request").focus();
-                    return;
-                }
-                state.request = request;
+      function prefillPhone(){
+        const el = $('inp-phone');
+        if (!el.value.trim()){
+          el.value = guessCountryCode() + ' ';
+          setTimeout(()=>{ try{ el.setSelectionRange(el.value.length, el.value.length); }catch{} }, 0);
+        }
+      }
 
-                const phone = document.getElementById("inp-phone");
-                phone.value = sanitizePhone(phone.value);
-                if (!phone.checkValidity()) {
-                    alert("Укажите телефон в международном формате (пример: +491234567890).");
-                    phone.focus();
-                    return;
-                }
-                state.phone = phone.value.trim();
+      // Прокрутка инпутов к центру при фокусе (удобнее с клавиатурой)
+      function ensureVisibleOnFocus(sel){
+        for (const el of document.querySelectorAll(sel)){
+          el.addEventListener('focus', ()=>{
+            el.scrollIntoView({behavior:'smooth', block:'center', inline:'nearest'});
+          });
+        }
+      }
 
-                const email = $("inp-email").value.trim();
-                if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-                    alert("Похоже, e-mail введён с ошибкой.");
-                    return;
-                }
-                state.email = email || null;
+      // Санитайзер телефона
+      function sanitizePhone(raw){
+        let s = raw.replace(/[\u00A0\s\-\.\(\)]/g,''); // пробелы/дефисы/скобки
+        s = s.replace(/(?!^)\+/g,'').replace(/[^\d+]/g,''); // оставить + и цифры
+        return s;
+      }
 
-                // Отправка данных
-                const payload = {
-                    service: state.service,
-                    request: state.request,
-                    method: state.method,
-                    phone: state.phone,
-                    email: state.email,
-                    time: state.time,
-                    ts: Date.now(),
-                };
+      // Валидация + отправка
+      function submitApp(){
+        const req = $('inp-request').value.trim();
+        if (req.length < 10){
+          alert('Опишите запрос подробнее (минимум 10 символов).');
+          $('inp-request').focus(); return;
+        }
+        state.request = req;
 
-                if (tg) {
-                    tg.sendData(JSON.stringify(payload));
-                    alert("Заявка отправлена. Спасибо!");
-                    tg.close();
-                } else {
-                    console.log("Demo payload:", payload);
-                    alert("Откройте форму из Telegram для реальной отправки.");
-                    $("scr-home").style.display = "none";
-                    $("scr-done").style.display = "block";
-                    closeSheet("sheet-form");
-                }
-            }
+        const phoneEl = $('inp-phone');
+        phoneEl.value = sanitizePhone(phoneEl.value);
+        if (!phoneEl.checkValidity()){
+          alert('Укажите телефон в международном формате (пример: +491234567890).');
+          phoneEl.focus(); return;
+        }
+        state.phone = phoneEl.value.trim();
 
-            function escapeHTML(s) {
-                return String(s)
-                    .replaceAll("&", "&amp;")
-                    .replaceAll("<", "&lt;")
-                    .replaceAll(">", "&gt;")
-                    .replaceAll('"', "&quot;")
-                    .replaceAll("'", "&#39;");
-            }
-        </script>
-    </body>
+        const email = $('inp-email').value.trim();
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){
+          alert('Похоже, e-mail введён с ошибкой.');
+          $('inp-email').focus(); return;
+        }
+        state.email = email || null;
+
+        const payload = {
+          service: state.service,
+          request: state.request,
+          method: state.method,
+          phone: state.phone,
+          email: state.email,
+          time: state.time,
+          ts: Date.now()
+        };
+
+        if (tg){
+          tg.sendData(JSON.stringify(payload));
+          alert('Заявка отправлена. Спасибо!');
+          tg.close();
+        } else {
+          console.log('Demo payload:', payload);
+          alert('Откройте форму из Telegram для реальной отправки.');
+          $('form').style?.display && ( $('form').style.display = 'none' );
+          $('scr-done').style.display = 'block';
+        }
+      }
+
+      function closeApp(){
+        if (tg){ tg.close(); }
+        else {
+          // демо: просто спрячем форму и покажем "домой"
+          document.getElementById('form').style.display = 'none';
+          document.getElementById('scr-done').style.display = 'block';
+        }
+      }
+
+      // Инициализация
+      (function init(){
+        bindSelectable('service-options','service-option','service');
+        bindSelectable('method-opts','opt','method');
+        bindSelectable('time-options','time-option','time');
+
+        $('btn-submit').onclick = submitApp;
+        $('btn-cancel').onclick = closeApp;
+        $('btn-home').onclick = ()=>{ location.reload(); };
+
+        ensureVisibleOnFocus('input, textarea, select');
+        prefillPhone();
+      })();
+    </script>
+  </body>
 </html>
