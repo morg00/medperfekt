@@ -160,7 +160,6 @@
     <script>
       const tg = window.Telegram?.WebApp;
       tg?.ready();
-      // Не расширяем на весь экран насильно; пусть Телеграм сам управляет.
 
       const $ = (id)=>document.getElementById(id);
 
@@ -179,47 +178,107 @@
         }
       }
 
-      // Телефон: авто-код страны (простая эвристика)
-      function guessCountryCode(){
+      // --- Улучшенное автоопределение кода страны ---
+      const CC_BY_REGION = {
+        RU:'+7', KZ:'+7', US:'+1', CA:'+1',
+        CZ:'+420', SK:'+421', DE:'+49', TR:'+90',
+        UA:'+380', PL:'+48', FR:'+33', ES:'+34', IT:'+39',
+        GB:'+44', AE:'+971', CN:'+86', JP:'+81'
+      };
+      const CC_BY_TZ_PREFIX = {
+        'Europe/Prague': '+420',
+        'Europe/Bratislava': '+421',
+        'Europe/Berlin': '+49',
+        'Europe/Moscow': '+7',
+        'Asia/Almaty': '+7',
+        'America/': '+1' // любой TZ в Америке
+      };
+
+      function urlCountryCode() {
+        const m = new URLSearchParams(location.search).get('cc');
+        return (m && /^\+\d{1,4}$/.test(m)) ? m : null;
+      }
+      function savedCountryCode() {
+        const v = localStorage.getItem('mp_cc');
+        return (v && /^\+\d{1,4}$/.test(v)) ? v : null;
+      }
+      function saveCountryCode(cc) {
+        if (/^\+\d{1,4}$/.test(cc)) localStorage.setItem('mp_cc', cc);
+      }
+
+      function languageRegion() {
+        const langs = [tg?.initDataUnsafe?.user?.language_code, navigator.language, ...(navigator.languages||[])]
+          .filter(Boolean);
+        for (const l of langs) {
+          try {
+            // Пытаемся достать регион из локали
+            const loc = new Intl.Locale(l);
+            if (loc.region && CC_BY_REGION[loc.region]) return loc.region;
+          } catch(_) {
+            // Fallback: парсим суффикс -RU/-CZ/...
+            const m = String(l).match(/-([A-Z]{2})$/i);
+            if (m) return m[1].toUpperCase();
+          }
+        }
+        return null;
+      }
+
+      function tzToCode() {
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+        for (const key of Object.keys(CC_BY_TZ_PREFIX)) {
+          if (key.endsWith('/') ? tz.startsWith(key) : tz === key) {
+            return CC_BY_TZ_PREFIX[key];
+          }
+        }
+        return null;
+      }
+
+      function guessCountryCodeImproved() {
+        // 1) Принудительно из URL или сохранённого выбора
+        const forced = urlCountryCode() || savedCountryCode();
+        if (forced) return forced;
+
+        // 2) Регион из языка (самый сильный сигнал)
+        const region = languageRegion();
+        if (region && CC_BY_REGION[region]) return CC_BY_REGION[region];
+
+        // 3) Таймзона
+        const byTz = tzToCode();
+        if (byTz) return byTz;
+
+        // 4) Слабые эвристики
         const lang = (tg?.initDataUnsafe?.user?.language_code || navigator.language || 'en').toLowerCase();
-
-        // быстрые маркеры
-        const mapByLang = {
-          'ru': '+7', 'kk': '+7', 'kz': '+7',
-          'en-us': '+1', 'en': '+1',
-          'cs': '+420', 'sk': '+421',
-          'de': '+49', 'tr': '+90', 'uk': '+380', 'ua': '+380',
-          'pl': '+48', 'fr': '+33', 'es': '+34', 'it': '+39',
-        };
-        const mapByTZ = {
-          'Europe/Moscow': '+7', 'Asia/Almaty': '+7', 'Asia/Aqtau': '+7',
-          'America/New_York': '+1', 'America/Los_Angeles': '+1',
-          'Europe/Prague': '+420', 'Europe/Berlin': '+49'
-        };
-
-        // точные
-        if (mapByTZ[tz]) return mapByTZ[tz];
-        if (mapByLang[lang]) return mapByLang[lang];
-
-        // префиксы
-        if (lang.startsWith('ru')) return '+7';
+        if (lang.startsWith('ru') || lang.startsWith('kk')) return '+7';
         if (lang.startsWith('cs')) return '+420';
         if (lang.startsWith('de')) return '+49';
         if (lang.startsWith('tr')) return '+90';
         if (lang.startsWith('uk') || lang.startsWith('ua')) return '+380';
-        if (tz.startsWith('America/')) return '+1';
+        if (lang.startsWith('en')) return '+1';
 
-        return '+49'; // дефолт — Германия (по тематике проекта)
+        // 5) Дефолт (при желании поменяй)
+        return '+420';
       }
 
-      function prefillPhone(){
+      function prefillPhoneImproved() {
         const el = $('inp-phone');
-        if (!el.value.trim()){
-          el.value = guessCountryCode() + ' ';
-          setTimeout(()=>{ try{ el.setSelectionRange(el.value.length, el.value.length); }catch{} }, 0);
+        if (!el) return;
+
+        // Только когда пусто — подставляем
+        if (!el.value.trim()) {
+          const cc = guessCountryCodeImproved();
+          el.value = cc + ' ';
+          try { el.setSelectionRange(el.value.length, el.value.length); } catch {}
+
+          // Если пользователь руками поменял код — запомним
+          const remember = () => {
+            const m = el.value.trim().match(/^\+\d{1,4}/);
+            if (m) saveCountryCode(m[0]);
+          };
+          el.addEventListener('change', remember);
+          el.addEventListener('blur', remember);
         }
       }
+      // -----------------------------------------------
 
       // Прокрутка инпутов к центру при фокусе (удобнее с клавиатурой)
       function ensureVisibleOnFocus(sel){
@@ -278,15 +337,14 @@
         } else {
           console.log('Demo payload:', payload);
           alert('Откройте форму из Telegram для реальной отправки.');
-          $('form').style?.display && ( $('form').style.display = 'none' );
-          $('scr-done').style.display = 'block';
+          document.getElementById('form').style.display = 'none';
+          document.getElementById('scr-done').style.display = 'block';
         }
       }
 
       function closeApp(){
         if (tg){ tg.close(); }
         else {
-          // демо: просто спрячем форму и покажем "домой"
           document.getElementById('form').style.display = 'none';
           document.getElementById('scr-done').style.display = 'block';
         }
@@ -303,7 +361,7 @@
         $('btn-home').onclick = ()=>{ location.reload(); };
 
         ensureVisibleOnFocus('input, textarea, select');
-        prefillPhone();
+        prefillPhoneImproved(); // <— новая версия
       })();
     </script>
   </body>
