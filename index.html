@@ -540,22 +540,12 @@
             };
             // --- /ЯЗЫКОВЫЕ РЕСУРСЫ ---
 
-            // --- ОПРЕДЕЛЕНИЕ ЯЗЫКА (Изменено: приоритет у localStorage) ---
+            // --- ОПРЕДЕЛЕНИЕ ЯЗЫКА (Изменено: Telegram/Browser приоритет над localStorage, дефолт - en) ---
             function detectLanguage() {
-                // Попробовать получить язык из localStorage (пользовательский выбор из /start или переключателя)
-                const savedLang = localStorage.getItem("mp_lang");
-                if (savedLang && STRINGS[savedLang]) {
-                    console.log("Using language from localStorage:", savedLang);
-                    return savedLang;
-                }
-
-                // Попробовать получить язык из Telegram (резерв, если localStorage пуст)
+                // Попробовать получить язык из Telegram (основной приоритет)
                 const tgLang = tg?.initDataUnsafe?.user?.language_code;
                 if (tgLang && STRINGS[tgLang]) {
-                    console.log(
-                        "Using language from Telegram (fallback):",
-                        tgLang,
-                    );
+                    console.log("Using language from Telegram:", tgLang);
                     return tgLang;
                 }
                 if (tgLang) {
@@ -565,14 +555,14 @@
                         .toLowerCase();
                     if (STRINGS[shortCode]) {
                         console.log(
-                            "Using language from Telegram (short code fallback):",
+                            "Using language from Telegram (short code):",
                             shortCode,
                         );
                         return shortCode;
                     }
                 }
 
-                // Попробовать получить язык из браузера (резерв)
+                // Попробовать получить язык из браузера (второй приоритет)
                 const browserLang =
                     navigator.language || navigator.languages[0];
                 if (browserLang) {
@@ -581,17 +571,24 @@
                         .split("-")[0]
                         .toLowerCase();
                     if (STRINGS[shortCode]) {
-                        console.log(
-                            "Using language from browser (fallback):",
-                            shortCode,
-                        );
+                        console.log("Using language from browser:", shortCode);
                         return shortCode;
                     }
                 }
 
-                // Дефолтный язык
-                console.log("Using default language: ru");
-                return "ru";
+                // Попробовать получить язык из localStorage (только если Telegram/Browser не определили) - Fallback
+                const savedLang = localStorage.getItem("mp_lang");
+                if (savedLang && STRINGS[savedLang]) {
+                    console.log(
+                        "Using language from localStorage (fallback):",
+                        savedLang,
+                    );
+                    return savedLang;
+                }
+
+                // Дефолтный язык - английский
+                console.log("Using default language: en");
+                return "en";
             }
 
             // Функция для сохранения выбранного языка
@@ -605,7 +602,7 @@
 
             // --- ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ---
             function updateUI(langCode) {
-                const strings = STRINGS[langCode] || STRINGS["ru"]; // fallback на русский, если язык не найден
+                const strings = STRINGS[langCode] || STRINGS["en"]; // fallback на английский, если язык не найден
                 const $ = (id) => document.getElementById(id);
 
                 // Обновить заголовки и тексты в секции формы
@@ -812,7 +809,7 @@
                 }
             }
 
-            // --- Улучшенное автоопределение кода страны (Изменено: учитывает state.language) ---
+            // --- Улучшенное автоопределение кода страны (Изменено: учитывает state.language, дефолт - en) ---
             // (Весь ваш текущий код для определения кода страны остается как есть)
             const CC_BY_REGION = {
                 RU: "+7",
@@ -906,6 +903,7 @@
                     console.log(
                         "UI language is RU, checking other heuristics for +7",
                     ); // Добавим лог
+                    return "+7";
                 }
 
                 // 3) Регион из языка (Telegram/Browser) (самый сильный сигнал после UI)
@@ -1005,8 +1003,8 @@
                 if (req.length < 10) {
                     alert(
                         STRINGS[state.language]?.alertReqLength ||
-                            STRINGS["ru"].alertReqLength,
-                    ); // Используем строку на текущем языке
+                            STRINGS["en"].alertReqLength,
+                    ); // Используем строку на текущем языке, fallback на en
                     $("inp-request").focus();
                     return;
                 }
@@ -1017,8 +1015,8 @@
                 if (!phoneEl.checkValidity()) {
                     alert(
                         STRINGS[state.language]?.alertPhoneFormat ||
-                            STRINGS["ru"].alertReqLength,
-                    ); // Используем строку на текущем языке
+                            STRINGS["en"].alertReqLength,
+                    ); // Используем строку на текущем языке, fallback на en
                     phoneEl.focus();
                     return;
                 }
@@ -1028,8 +1026,8 @@
                 if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
                     alert(
                         STRINGS[state.language]?.alertEmailFormat ||
-                            STRINGS["ru"].alertReqLength,
-                    ); // Используем строку на текущем языке
+                            STRINGS["en"].alertReqLength,
+                    ); // Используем строку на текущем языке, fallback на en
                     $("inp-email").focus();
                     return;
                 }
@@ -1051,25 +1049,25 @@
                     // alert('Заявка отправлена. Спасибо!'); // Заменяем на сообщение на языке пользователя
                     alert(
                         STRINGS[state.language]?.botThankYou ||
-                            STRINGS["ru"].botThankYou,
-                    );
+                            STRINGS["en"].botThankYou,
+                    ); // fallback на en
                     tg.close();
                 } else {
                     console.log("Demo payload:", payload);
                     // alert('Откройте форму из Telegram для реальной отправки.'); // Заменяем на сообщение на языке пользователя
                     alert(
                         STRINGS[state.language]?.demoSend ||
-                            STRINGS["ru"].demoSend,
-                    );
+                            STRINGS["en"].demoSend,
+                    ); // fallback на en
                     document.getElementById("form").style.display = "none";
                     document.getElementById("scr-done").style.display = "block";
                     // Также обновляем текст на экране "готово" на случай демонстрации
                     document.querySelector("#scr-done h1").textContent =
                         STRINGS[state.language]?.thankYouTitle ||
-                        STRINGS["ru"].thankYouTitle;
+                        STRINGS["en"].thankYouTitle; // fallback на en
                     document.querySelector("#scr-done p.muted").textContent =
                         STRINGS[state.language]?.thankYouText ||
-                        STRINGS["ru"].thankYouText;
+                        STRINGS["en"].thankYouText; // fallback на en
                 }
             }
 
@@ -1084,7 +1082,7 @@
 
             // Инициализация (изменено: определяем язык и обновляем UI)
             (function init() {
-                // 1. Определяем язык (с приоритетом localStorage)
+                // 1. Определяем язык (Telegram/Browser приоритет над localStorage, fallback на en)
                 state.language = detectLanguage(); // Сохраняем определенный язык в state
 
                 // 2. Обновляем интерфейс на основе определенного языка
@@ -1113,7 +1111,7 @@
                 prefillPhoneImproved(); // <— НОВАЯ версия, учитывает state.language
 
                 console.log(
-                    "Initialization complete. Current language (from storage/detect):",
+                    "Initialization complete. Current language (from Telegram/Browser/storage/detect):",
                     state.language,
                 );
             })();
