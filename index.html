@@ -239,10 +239,9 @@
                 display: grid;
                 grid-template-columns: repeat(2, 1fr);
                 gap: 10px;
-                align-items: stretch;
             }
             .service-option {
-                padding: 14px 12px;
+                padding: 12px;
                 border: 1px solid #e3edf0;
                 border-radius: 14px;
                 background: #fff;
@@ -252,16 +251,15 @@
                 color: #5b6b76;
                 display: flex;
                 align-items: center;
-                justify-content: center; /* центрируем содержимое по горизонтали */
-                gap: 8px;
-                min-height: 54px;
+                justify-content: center;
                 text-align: center;
-                /* ограничение до 2 строк с аккуратной центровкой */
-                overflow: hidden;
-                display: -webkit-box;
-                -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
-                white-space: normal; /* позволяем перенос строк внутри -webkit-box */
+                min-height: 54px;
+                /* Убираем ограничение на строки */
+                white-space: normal;
+                word-break: break-word;
+                hyphens: auto;
+                /* Добавляем немного padding для длинных слов */
+                padding: 12px 8px;
             }
             .service-option.sel {
                 border-color: #b9efe7;
@@ -306,6 +304,10 @@
                 );
                 padding-top: 8px;
             }
+            @media (max-width: 480px) {
+                .service-grid {
+                    grid-template-columns: 1fr;
+                }
         </style>
     </head>
     <body>
@@ -1051,12 +1053,15 @@
                 state.request = req;
 
                 const phoneEl = $("inp-phone");
-                phoneEl.value = sanitizePhone(phoneEl.value);
-                if (!phoneEl.checkValidity()) {
+                const cleanPhone = sanitizePhone(phoneEl.value);
+                phoneEl.value = cleanPhone; // сразу обновляем значение
+
+                // Валидируем вручную, так как pattern не сработает на "грязном" значении
+                if (!/^\+[1-9]\d{1,14}$/.test(cleanPhone)) {
                     alert(
                         STRINGS[state.language]?.alertPhoneFormat ||
-                            STRINGS["en"].alertReqLength,
-                    ); // Используем строку на текущем языке, fallback на en
+                            STRINGS["en"].alertPhoneFormat,
+                    );
                     phoneEl.focus();
                     return;
                 }
