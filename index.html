@@ -761,7 +761,7 @@
             }
             // --- /ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ---
 
-            // --- ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА ---
+            // --- ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА (Изменено: всегда обновляет код страны) ---
             function switchLanguage(langCode) {
                 if (STRINGS[langCode]) {
                     state.language = langCode; // Обновляем язык в состоянии
@@ -769,8 +769,22 @@
                     updateUI(langCode); // Обновляем интерфейс
                     console.log("Language switched via button to:", langCode);
 
-                    // Обновляем код страны телефона при переключении языка
-                    prefillPhoneImproved();
+                    // Обновляем код страны телефона при переключении языка, даже если поле не пустое
+                    const phoneInput = $("inp-phone");
+                    if (phoneInput) {
+                        const currentNumber = phoneInput.value.replace(
+                            /^\+\d{1,4}\s*/,
+                            "",
+                        ); // Сохраняем введённый номер без кода
+                        const newCode = guessCountryCodeImproved(); // Получаем новый код на основе state.language
+                        phoneInput.value = newCode + " " + currentNumber; // Подставляем новый код и старый номер
+                        try {
+                            phoneInput.setSelectionRange(
+                                phoneInput.value.length,
+                                phoneInput.value.length,
+                            );
+                        } catch {} // Курсор в конец
+                    }
                 }
             }
             // --- /ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА ---
