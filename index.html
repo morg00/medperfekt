@@ -540,9 +540,17 @@
             };
             // --- /ЯЗЫКОВЫЕ РЕСУРСЫ ---
 
-            // --- ОПРЕДЕЛЕНИЕ ЯЗЫКА (Изменено: Telegram/Browser приоритет над localStorage, дефолт - en) ---
+            // --- ОПРЕДЕЛЕНИЕ ЯЗЫКА (Изменено: Telegram/Browser приоритет, дефолт - en) ---
             function detectLanguage() {
-                // Попробовать получить язык из Telegram (основной приоритет)
+                // Попробовать получить язык из URL (высший приоритет)
+                const urlParams = new URLSearchParams(location.search);
+                const urlLang = urlParams.get('lang');
+                if (urlLang && STRINGS[urlLang]) {
+                    console.log("Using language from URL:", urlLang);
+                    return urlLang;
+                }
+
+                // Попробовать получить язык из Telegram (второй приоритет)
                 const tgLang = tg?.initDataUnsafe?.user?.language_code;
                 if (tgLang && STRINGS[tgLang]) {
                     console.log("Using language from Telegram:", tgLang);
@@ -562,7 +570,7 @@
                     }
                 }
 
-                // Попробовать получить язык из браузера (второй приоритет)
+                // Попробовать получить язык из браузера (третий приоритет)
                 const browserLang =
                     navigator.language || navigator.languages[0];
                 if (browserLang) {
@@ -574,16 +582,6 @@
                         console.log("Using language from browser:", shortCode);
                         return shortCode;
                     }
-                }
-
-                // Попробовать получить язык из localStorage (только если Telegram/Browser не определили) - Fallback
-                const savedLang = localStorage.getItem("mp_lang");
-                if (savedLang && STRINGS[savedLang]) {
-                    console.log(
-                        "Using language from localStorage (fallback):",
-                        savedLang,
-                    );
-                    return savedLang;
                 }
 
                 // Дефолтный язык - английский
