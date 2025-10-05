@@ -888,20 +888,14 @@
 
                 // 2) Язык интерфейса index.html (RU/EN)
                 // Проверяем state.language, который устанавливается при инициализации или переключении
-                const uiLang = state.language
-                    .split("_")[0]
-                    .split("-")[0]
-                    .toLowerCase();
-                if (uiLang === "en") {
-                    console.log("Using +1 based on UI language (EN)"); // Добавим лог
-                    return "+1";
-                }
-                // Если интерфейс на русском, можно вернуть +7, но оставим остальные эвристики
-                if (uiLang === "ru") {
-                    console.log(
-                        "UI language is RU, checking other heuristics for +7",
-                    ); // Добавим лог
-                    return "+7";
+                const uiLang = (state.language || '').split("_")[0].split("-")[0].toLowerCase();
+                    if (uiLang === "en") {
+                        return "+1";
+                    }
+                    if (uiLang === "ru") {
+                        return "+7";
+                    }
+
                 }
 
                 // 3) Регион из языка (Telegram/Browser) (самый сильный сигнал после UI)
