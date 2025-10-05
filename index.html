@@ -540,37 +540,39 @@
             };
             // --- /ЯЗЫКОВЫЕ РЕСУРСЫ ---
 
-            // --- ОПРЕДЕЛЕНИЕ ЯЗЫКА (Изменено: добавлено сохранение/чтение из localStorage) ---
+            // --- ОПРЕДЕЛЕНИЕ ЯЗЫКА (Изменено: приоритет у localStorage) ---
             function detectLanguage() {
-                // Попробовать получить язык из localStorage (пользовательский выбор)
+                // Попробовать получить язык из localStorage (пользовательский выбор из /start или переключателя)
                 const savedLang = localStorage.getItem("mp_lang");
                 if (savedLang && STRINGS[savedLang]) {
                     console.log("Using language from localStorage:", savedLang);
                     return savedLang;
                 }
 
-                // Попробовать получить язык из Telegram
+                // Попробовать получить язык из Telegram (резерв, если localStorage пуст)
                 const tgLang = tg?.initDataUnsafe?.user?.language_code;
                 if (tgLang && STRINGS[tgLang]) {
-                    console.log("Using language from Telegram:", tgLang);
+                    console.log(
+                        "Using language from Telegram (fallback):",
+                        tgLang,
+                    );
                     return tgLang;
                 }
                 if (tgLang) {
-                    // Если язык Telegram не найден в словарях, проверим краткий код (например, 'en' из 'en_US')
                     const shortCode = tgLang
                         .split("_")[0]
                         .split("-")[0]
                         .toLowerCase();
                     if (STRINGS[shortCode]) {
                         console.log(
-                            "Using language from Telegram (short code):",
+                            "Using language from Telegram (short code fallback):",
                             shortCode,
                         );
                         return shortCode;
                     }
                 }
 
-                // Попробовать получить язык из браузера
+                // Попробовать получить язык из браузера (резерв)
                 const browserLang =
                     navigator.language || navigator.languages[0];
                 if (browserLang) {
@@ -579,14 +581,17 @@
                         .split("-")[0]
                         .toLowerCase();
                     if (STRINGS[shortCode]) {
-                        console.log("Using language from browser:", shortCode);
+                        console.log(
+                            "Using language from browser (fallback):",
+                            shortCode,
+                        );
                         return shortCode;
                     }
                 }
 
                 // Дефолтный язык
                 console.log("Using default language: ru");
-                return "ru"; // Или 'en', если хотите, чтобы английский был дефолтным
+                return "ru";
             }
 
             // Функция для сохранения выбранного языка
@@ -760,9 +765,12 @@
             function switchLanguage(langCode) {
                 if (STRINGS[langCode]) {
                     state.language = langCode; // Обновляем язык в состоянии
-                    saveLanguage(langCode); // Сохраняем выбор
+                    saveLanguage(langCode); // Сохраняем выбор в localStorage
                     updateUI(langCode); // Обновляем интерфейс
-                    console.log("Language switched to:", langCode);
+                    console.log("Language switched via button to:", langCode);
+
+                    // Обновляем код страны телефона при переключении языка
+                    prefillPhoneImproved();
                 }
             }
             // --- /ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА ---
@@ -790,7 +798,7 @@
                 }
             }
 
-            // --- Улучшенное автоопределение кода страны (без изменений, но использует language_code) ---
+            // --- Улучшенное автоопределение кода страны (Изменено: учитывает state.language) ---
             // (Весь ваш текущий код для определения кода страны остается как есть)
             const CC_BY_REGION = {
                 RU: "+7",
@@ -869,29 +877,68 @@
                 const forced = urlCountryCode() || savedCountryCode();
                 if (forced) return forced;
 
-                // 2) Регион из языка (самый сильный сигнал)
+                // 2) Язык интерфейса index.html (RU/EN)
+                // Проверяем state.language, который устанавливается при инициализации или переключении
+                const uiLang = state.language
+                    .split("_")[0]
+                    .split("-")[0]
+                    .toLowerCase();
+                if (uiLang === "en") {
+                    console.log("Using +1 based on UI language (EN)"); // Добавим лог
+                    return "+1";
+                }
+                // Если интерфейс на русском, можно вернуть +7, но оставим остальные эвристики
+                if (uiLang === "ru") {
+                    console.log(
+                        "UI language is RU, checking other heuristics for +7",
+                    ); // Добавим лог
+                }
+
+                // 3) Регион из языка (Telegram/Browser) (самый сильный сигнал после UI)
                 const region = languageRegion();
-                if (region && CC_BY_REGION[region]) return CC_BY_REGION[region];
+                if (region && CC_BY_REGION[region]) {
+                    console.log(
+                        "Using code based on region:",
+                        region,
+                        CC_BY_REGION[region],
+                    ); // Добавим лог
+                    return CC_BY_REGION[region];
+                }
 
-                // 3) Таймзона
+                // 4) Таймзона
                 const byTz = tzToCode();
-                if (byTz) return byTz;
+                if (byTz) {
+                    console.log("Using code based on timezone:", byTz); // Добавим лог
+                    return byTz;
+                }
 
-                // 4) Слабые эвристики
+                // 5) Слабые эвристики (Telegram/Browser language)
+                // Язык Telegram/Browser (не UI!)
                 const lang = (
                     tg?.initDataUnsafe?.user?.language_code ||
                     navigator.language ||
                     "en"
                 ).toLowerCase();
-                if (lang.startsWith("ru") || lang.startsWith("kk")) return "+7";
+                if (lang.startsWith("ru") || lang.startsWith("kk")) {
+                    console.log(
+                        "Using +7 based on Telegram/Browser language (ru/kk)",
+                    ); // Добавим лог
+                    return "+7";
+                }
                 if (lang.startsWith("cs")) return "+420";
                 if (lang.startsWith("de")) return "+49";
                 if (lang.startsWith("tr")) return "+90";
                 if (lang.startsWith("uk") || lang.startsWith("ua"))
                     return "+380";
-                if (lang.startsWith("en")) return "+1";
+                if (lang.startsWith("en")) {
+                    console.log(
+                        "Using +1 based on Telegram/Browser language (en)",
+                    ); // Добавим лог
+                    return "+1";
+                }
 
-                // 5) Дефолт (при желании поменяй)
+                // 6) Дефолт (при желании поменяй)
+                console.log("Using default code +420"); // Добавим лог
                 return "+420";
             }
 
@@ -901,7 +948,7 @@
 
                 // Только когда пусто — подставляем
                 if (!el.value.trim()) {
-                    const cc = guessCountryCodeImproved();
+                    const cc = guessCountryCodeImproved(); // <-- Теперь учитывает state.language
                     el.value = cc + " ";
                     try {
                         el.setSelectionRange(el.value.length, el.value.length);
@@ -956,7 +1003,7 @@
                 if (!phoneEl.checkValidity()) {
                     alert(
                         STRINGS[state.language]?.alertPhoneFormat ||
-                            STRINGS["ru"].alertPhoneFormat,
+                            STRINGS["ru"].alertReqLength,
                     ); // Используем строку на текущем языке
                     phoneEl.focus();
                     return;
@@ -967,7 +1014,7 @@
                 if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
                     alert(
                         STRINGS[state.language]?.alertEmailFormat ||
-                            STRINGS["ru"].alertEmailFormat,
+                            STRINGS["ru"].alertReqLength,
                     ); // Используем строку на текущем языке
                     $("inp-email").focus();
                     return;
@@ -981,7 +1028,7 @@
                     phone: state.phone,
                     email: state.email,
                     time: state.time,
-                    language: state.language, // <-- Добавляем язык в payload
+                    language: state.language, // <-- Добавляем язык в payload (язык интерфейса на момент отправки)
                     ts: Date.now(),
                 };
 
@@ -1023,7 +1070,7 @@
 
             // Инициализация (изменено: определяем язык и обновляем UI)
             (function init() {
-                // 1. Определяем язык
+                // 1. Определяем язык (с приоритетом localStorage)
                 state.language = detectLanguage(); // Сохраняем определенный язык в state
 
                 // 2. Обновляем интерфейс на основе определенного языка
@@ -1049,10 +1096,10 @@
 
                 // 6. Другие инициализации (без изменений)
                 ensureVisibleOnFocus("input, textarea, select");
-                prefillPhoneImproved(); // <— старая версия, но она использует language_code для определения кода страны
+                prefillPhoneImproved(); // <— НОВАЯ версия, учитывает state.language
 
                 console.log(
-                    "Initialization complete. Current language:",
+                    "Initialization complete. Current language (from storage/detect):",
                     state.language,
                 );
             })();
