@@ -1091,12 +1091,8 @@
 
                 if (tg) {
                     tg.sendData(JSON.stringify(payload));
-                    // alert('Заявка отправлена. Спасибо!'); // Заменяем на сообщение на языке пользователя
-                    alert(
-                        STRINGS[state.language]?.botThankYou ||
-                            STRINGS["en"].botThankYou,
-                    ); // fallback на en
-                    tg.close();
+                    tg.close(); // просто закрываем Mini App — бот сам отправит сообщение
+                }
                 } else {
                     console.log("Demo payload:", payload);
                     // alert('Откройте форму из Telegram для реальной отправки.'); // Заменяем на сообщение на языке пользователя
