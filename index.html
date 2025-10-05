@@ -544,7 +544,7 @@
             function detectLanguage() {
                 // Попробовать получить язык из URL (высший приоритет)
                 const urlParams = new URLSearchParams(location.search);
-                const urlLang = urlParams.get('lang');
+                const urlLang = urlParams.get("lang");
                 if (urlLang && STRINGS[urlLang]) {
                     console.log("Using language from URL:", urlLang);
                     return urlLang;
@@ -887,37 +887,32 @@
                 if (forced) return forced;
 
                 // 2) Язык интерфейса index.html (RU/EN)
-                // Проверяем state.language, который устанавливается при инициализации или переключении
-                const uiLang = (state.language || '').split("_")[0].split("-")[0].toLowerCase();
-                    if (uiLang === "en") {
-                        return "+1";
-                    }
-                    if (uiLang === "ru") {
-                        return "+7";
-                    }
+                const uiLang = (state.language || "")
+                    .split("_")[0]
+                    .split("-")[0]
+                    .toLowerCase();
+                if (uiLang === "en") return "+1";
+                if (uiLang === "ru") return "+7";
 
-                }
-
-                // 3) Регион из языка (Telegram/Browser) (самый сильный сигнал после UI)
+                // 3) Регион из языка (Telegram/Browser)
                 const region = languageRegion();
                 if (region && CC_BY_REGION[region]) {
                     console.log(
                         "Using code based on region:",
                         region,
                         CC_BY_REGION[region],
-                    ); // Добавим лог
+                    );
                     return CC_BY_REGION[region];
                 }
 
                 // 4) Таймзона
                 const byTz = tzToCode();
                 if (byTz) {
-                    console.log("Using code based on timezone:", byTz); // Добавим лог
+                    console.log("Using code based on timezone:", byTz);
                     return byTz;
                 }
 
                 // 5) Слабые эвристики (Telegram/Browser language)
-                // Язык Telegram/Browser (не UI!)
                 const lang = (
                     tg?.initDataUnsafe?.user?.language_code ||
                     navigator.language ||
@@ -926,7 +921,7 @@
                 if (lang.startsWith("ru") || lang.startsWith("kk")) {
                     console.log(
                         "Using +7 based on Telegram/Browser language (ru/kk)",
-                    ); // Добавим лог
+                    );
                     return "+7";
                 }
                 if (lang.startsWith("cs")) return "+420";
@@ -937,12 +932,12 @@
                 if (lang.startsWith("en")) {
                     console.log(
                         "Using +1 based on Telegram/Browser language (en)",
-                    ); // Добавим лог
+                    );
                     return "+1";
                 }
 
-                // 6) Дефолт (при желании поменяй)
-                console.log("Using default code +420"); // Добавим лог
+                // 6) Дефолт
+                console.log("Using default code +420");
                 return "+420";
             }
 
