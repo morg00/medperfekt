@@ -21,6 +21,7 @@
                 --ring: #b8efe8;
                 --radius: 18px;
                 --shadow: 0 14px 40px rgba(10, 40, 50, 0.08);
+                --border: #edf3f5;
             }
             * {
                 box-sizing: border-box;
@@ -40,6 +41,7 @@
                     Inter,
                     Roboto,
                     Arial;
+                transition: background-color 0.3s ease, color 0.3s ease;
             }
             .wrap {
                 max-width: 760px;
@@ -78,10 +80,10 @@
                 flex: 0 0 auto;
             }
             .lang-btn {
-                border: 1px solid #e3edf0;
+                border: 1px solid var(--border);
                 border-radius: 8px;
                 padding: 6px 10px;
-                background: #fff;
+                background: var(--card);
                 cursor: pointer;
                 font-size: 12px;
                 min-width: 42px;
@@ -89,6 +91,7 @@
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
+                transition: all 0.2s ease;
             }
             .lang-btn.sel {
                 border-color: var(--accent);
@@ -101,8 +104,9 @@
                 background: var(--card);
                 border-radius: 22px;
                 box-shadow: var(--shadow);
-                border: 1px solid #edf3f5;
+                border: 1px solid var(--border);
                 padding: 18px;
+                transition: all 0.3s ease;
             }
             h1 {
                 font-size: 22px;
@@ -139,21 +143,24 @@
             textarea {
                 width: 100%;
                 padding: 13px 14px;
-                border: 1px solid #e3edf0;
+                border: 1px solid var(--border);
                 border-radius: 14px;
-                background: #fff;
+                background: var(--card);
                 font-size: 16px;
                 line-height: 1.2;
                 outline: none;
+                color: var(--ink);
+                transition: all 0.2s ease;
             }
             input:focus,
             textarea:focus,
             select:focus {
                 border-color: var(--ring);
-                box-shadow: 0 0 0 4px rgba(18, 194, 176, 0.12);
+                box-shadow: 0 0 0 4px var(--ring);
             }
             ::placeholder {
-                color: #9aa8b2;
+                color: var(--muted);
+                opacity: 0.7;
             }
             textarea {
                 min-height: 110px;
@@ -170,8 +177,9 @@
                 font-weight: 800;
                 cursor: pointer;
                 padding: 0 20px;
-                flex: 1; /* Чтобы кнопки занимали равное пространство */
-                min-width: 120px; /* Минимальная ширина для кнопок */
+                flex: 1;
+                min-width: 120px;
+                transition: all 0.2s ease;
             }
             .btn:disabled {
                 opacity: 0.6;
@@ -180,11 +188,11 @@
             .btn.ghost {
                 background: var(--accent-ghost);
                 color: #064e47;
-                border: 1px solid #d2f4ee;
+                border: 1px solid var(--ring);
             }
             .btn.outline {
-                background: #fff;
-                border: 1px solid #e3edf0;
+                background: var(--card);
+                border: 1px solid var(--border);
                 color: var(--ink);
             }
             .cta {
@@ -195,7 +203,7 @@
 
             .hint {
                 font-size: 12px;
-                color: #7a8b96;
+                color: var(--muted);
             }
 
             /* ========== Контролы способа связи ========== */
@@ -210,25 +218,26 @@
                 align-items: center;
                 justify-content: center;
                 gap: 10px;
-                border: 1px solid #e3edf0;
+                border: 1px solid var(--border);
                 border-radius: 14px;
                 padding: 12px;
                 cursor: pointer;
-                background: #fff;
-                color: #5b6b76;
+                background: var(--card);
+                color: var(--muted);
                 min-width: 0;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 text-align: center;
+                transition: all 0.2s ease;
             }
             .method .opt b {
-                color: #2b3b45;
+                color: var(--ink);
             }
             .method .opt.sel {
-                border-color: #b9efe7;
+                border-color: var(--ring);
                 background: var(--accent-ghost);
-                color: #0e2733;
+                color: var(--ink);
             }
             .method .icon {
                 width: 28px;
@@ -246,13 +255,13 @@
             }
             .service-option {
                 padding: 14px 12px;
-                border: 1px solid #e3edf0;
+                border: 1px solid var(--border);
                 border-radius: 14px;
-                background: #fff;
+                background: var(--card);
                 cursor: pointer;
                 font-size: 14px;
                 font-weight: 600;
-                color: #5b6b76;
+                color: var(--muted);
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -264,11 +273,12 @@
                 -webkit-line-clamp: 2;
                 -webkit-box-orient: vertical;
                 white-space: normal;
+                transition: all 0.2s ease;
             }
             .service-option.sel {
-                border-color: #b9efe7;
+                border-color: var(--ring);
                 background: var(--accent-ghost);
-                color: #0e2733;
+                color: var(--ink);
             }
 
             /* ========== Варианты времени ========== */
@@ -279,21 +289,22 @@
             }
             .time-option {
                 padding: 12px 10px;
-                border: 1px solid #e3edf0;
+                border: 1px solid var(--border);
                 border-radius: 12px;
-                background: #fff;
+                background: var(--card);
                 cursor: pointer;
                 text-align: center;
                 font-size: 13px;
-                color: #5b6b76;
+                color: var(--muted);
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
+                transition: all 0.2s ease;
             }
             .time-option.sel {
-                border-color: #b9efe7;
+                border-color: var(--ring);
                 background: var(--accent-ghost);
-                color: #0e2733;
+                color: var(--ink);
             }
 
             /* Липкая область действий */
@@ -307,6 +318,43 @@
                     var(--bg) 40%
                 );
                 padding-top: 8px;
+            }
+
+            /* ========== ТЁМНАЯ ТЕМА ========== */
+            @media (prefers-color-scheme: dark) {
+                :root {
+                    --bg: #0f1a1f;
+                    --card: #1a2a33;
+                    --ink: #e6f0f5;
+                    --muted: #8a9ba8;
+                    --accent: #12c2b0;
+                    --accent-ghost: rgba(18, 194, 176, 0.15);
+                    --ring: rgba(18, 194, 176, 0.4);
+                    --shadow: 0 14px 40px rgba(0, 0, 0, 0.25);
+                    --border: #2a3b45;
+                }
+
+                .logo {
+                    box-shadow: 0 6px 18px rgba(11, 191, 170, 0.3);
+                }
+
+                .btn.ghost {
+                    color: #a8f0e8;
+                }
+
+                .sticky {
+                    background: linear-gradient(
+                        180deg,
+                        rgba(15, 26, 31, 0),
+                        var(--bg) 40%
+                    );
+                }
+
+                input:focus,
+                textarea:focus,
+                select:focus {
+                    box-shadow: 0 0 0 4px rgba(18, 194, 176, 0.2);
+                }
             }
 
             /* ========== АДАПТИВНОСТЬ ДЛЯ УЗКИХ ЭКРАНОВ ========== */
@@ -368,7 +416,7 @@
                     padding: 12px 10px;
                     font-size: 13px;
                     min-height: 50px;
-                    -webkit-line-clamp: 3; /* Разрешаем до 3 строк на узких экранах */
+                    -webkit-line-clamp: 3;
                 }
                 
                 /* Варианты времени в один ряд с переносом текста */
@@ -380,7 +428,7 @@
                 .time-option {
                     padding: 10px 8px;
                     font-size: 12px;
-                    white-space: normal; /* Разрешаем перенос текста */
+                    white-space: normal;
                     -webkit-line-clamp: 2;
                     display: -webkit-box;
                     -webkit-box-orient: vertical;
@@ -390,7 +438,7 @@
                 
                 /* Кнопки действий остаются в ряд */
                 .cta {
-                    flex-direction: row; /* Оставляем в ряд */
+                    flex-direction: row;
                     gap: 8px;
                 }
                 
@@ -399,7 +447,7 @@
                     border-radius: 14px;
                     font-size: 15px;
                     flex: 1;
-                    min-width: 0; /* Убираем минимальную ширину на очень узких экранах */
+                    min-width: 0;
                 }
                 
                 /* Уменьшаем отступы в полях ввода */
