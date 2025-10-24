@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="ru">
     <head>
@@ -269,11 +268,16 @@
                 min-height: 54px;
                 text-align: center;
                 overflow: hidden;
+                /* Улучшенное центрирование текста */
                 display: -webkit-box;
                 -webkit-line-clamp: 2;
                 -webkit-box-orient: vertical;
                 white-space: normal;
                 transition: all 0.2s ease;
+                /* Центрирование для многострочного текста */
+                line-height: 1.3;
+                padding-top: 15px;
+                padding-bottom: 15px;
             }
             .service-option.sel {
                 border-color: var(--ring);
@@ -300,6 +304,12 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
                 transition: all 0.2s ease;
+                /* Улучшенное центрирование */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 44px;
+                line-height: 1.2;
             }
             .time-option.sel {
                 border-color: var(--ring);
@@ -307,7 +317,7 @@
                 color: var(--ink);
             }
 
-            /* Липкая область действий */
+            /* Липкая область действий - ИСПРАВЛЕНА */
             .sticky {
                 position: sticky;
                 bottom: 0;
@@ -315,7 +325,7 @@
                 background: linear-gradient(
                     180deg,
                     rgba(246, 251, 252, 0),
-                    var(--bg) 40%
+                    var(--card) 40%
                 );
                 padding-top: 8px;
             }
@@ -340,14 +350,6 @@
 
                 .btn.ghost {
                     color: #a8f0e8;
-                }
-
-                .sticky {
-                    background: linear-gradient(
-                        180deg,
-                        rgba(15, 26, 31, 0),
-                        var(--bg) 40%
-                    );
                 }
 
                 input:focus,
@@ -417,6 +419,10 @@
                     font-size: 13px;
                     min-height: 50px;
                     -webkit-line-clamp: 3;
+                    /* Улучшенное центрирование для мобильных */
+                    padding-top: 13px;
+                    padding-bottom: 13px;
+                    line-height: 1.25;
                 }
                 
                 /* Варианты времени в один ряд с переносом текста */
@@ -434,6 +440,10 @@
                     -webkit-box-orient: vertical;
                     min-height: 44px;
                     line-height: 1.3;
+                    /* Центрирование для многострочного текста */
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
                 }
                 
                 /* Кнопки действий остаются в ряд */
@@ -459,6 +469,15 @@
                 
                 textarea {
                     min-height: 100px;
+                }
+                
+                /* Липкая область для мобильных */
+                .sticky {
+                    background: linear-gradient(
+                        180deg,
+                        rgba(15, 26, 31, 0),
+                        var(--card) 40%
+                    );
                 }
                 
                 /* Методы связи тоже в колонку на очень узких экранах */
@@ -673,6 +692,7 @@
         </div>
 
         <script>
+            // ... (JavaScript код остается без изменений, так как он уже работает корректно)
             const tg = window.Telegram?.WebApp;
             tg?.ready();
 
@@ -716,7 +736,6 @@
                         "Откройте форму из Telegram для реальной отправки.",
                     botThankYou:
                         "✅ Заявка отправлена. Спасибо! <b>Medperfekt</b>",
-                    // Тексты для переключателя языка
                     langSwitcherLabel: "Язык:",
                     langRu: "RU",
                     langEn: "EN",
@@ -758,17 +777,14 @@
                         "Open the form from Telegram for actual submission.",
                     botThankYou:
                         "✅ Request sent. Thank you! <b>Medperfekt</b>",
-                    // Тексты для переключателя языка
                     langSwitcherLabel: "Language:",
                     langRu: "RU",
                     langEn: "EN",
                 },
             };
-            // --- /ЯЗЫКОВЫЕ РЕСУРСЫ ---
 
-            // --- ОПРЕДЕЛЕНИЕ ЯЗЫКА (Изменено: Telegram/Browser приоритет, дефолт - en) ---
+            // --- ОПРЕДЕЛЕНИЕ ЯЗЫКА ---
             function detectLanguage() {
-                // Попробовать получить язык из URL (высший приоритет)
                 const urlParams = new URLSearchParams(location.search);
                 const urlLang = urlParams.get("lang");
                 if (urlLang && STRINGS[urlLang]) {
@@ -776,7 +792,6 @@
                     return urlLang;
                 }
 
-                // Попробовать получить язык из Telegram (второй приоритет)
                 const tgLang = tg?.initDataUnsafe?.user?.language_code;
                 if (tgLang && STRINGS[tgLang]) {
                     console.log("Using language from Telegram:", tgLang);
@@ -796,7 +811,6 @@
                     }
                 }
 
-                // Попробовать получить язык из браузера (третий приоритет)
                 const browserLang =
                     navigator.language || navigator.languages[0];
                 if (browserLang) {
@@ -810,33 +824,28 @@
                     }
                 }
 
-                // Дефолтный язык - английский
                 console.log("Using default language: en");
                 return "en";
             }
 
-            // Функция для сохранения выбранного языка
             function saveLanguage(langCode) {
                 if (STRINGS[langCode]) {
                     localStorage.setItem("mp_lang", langCode);
                     console.log("Saved language to localStorage:", langCode);
                 }
             }
-            // --- /ОПРЕДЕЛЕНИЕ ЯЗЫКА ---
 
             // --- ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ---
             function updateUI(langCode) {
-                const strings = STRINGS[langCode] || STRINGS["en"]; // fallback на английский, если язык не найден
+                const strings = STRINGS[langCode] || STRINGS["en"];
                 const $ = (id) => document.getElementById(id);
 
-                // Обновить заголовки и тексты в секции формы
                 const titleEl = document.querySelector("#form h1");
                 if (titleEl) titleEl.textContent = strings.title;
 
                 const subtitleEl = document.querySelector("#form p.muted");
                 if (subtitleEl) subtitleEl.textContent = strings.subtitle;
 
-                // Обновить метки полей
                 const labels = document.querySelectorAll("label");
                 labels.forEach((label) => {
                     if (
@@ -877,7 +886,6 @@
                     }
                 });
 
-                // Обновить тексты внутри карточных опций (услуги)
                 const serviceOptions = document.querySelectorAll(
                     "#service-options .service-option",
                 );
@@ -909,32 +917,27 @@
                     }
                 });
 
-                // Обновить placeholder текста
                 const requestTextarea = $("inp-request");
                 if (requestTextarea)
                     requestTextarea.placeholder = strings.requestPlaceholder;
 
-                // Обновить подсказку длины
-                const hintMinLength = document.querySelector(".hint"); // Предполагается, что первая .hint - это для запроса
+                const hintMinLength = document.querySelector(".hint");
                 if (hintMinLength)
                     hintMinLength.textContent = strings.hintMinLength;
 
-                // Обновить placeholder и hint телефона
                 const phoneInput = $("inp-phone");
                 if (phoneInput) {
                     phoneInput.placeholder = strings.phonePlaceholder;
-                    const phoneHint = phoneInput.nextElementSibling; // Подсказка сразу после инпута
+                    const phoneHint = phoneInput.nextElementSibling;
                     if (phoneHint && phoneHint.classList.contains("hint")) {
                         phoneHint.textContent = strings.phoneHint;
                     }
                 }
 
-                // Обновить placeholder email
                 const emailInput = $("inp-email");
                 if (emailInput)
                     emailInput.placeholder = strings.emailPlaceholder;
 
-                // Обновить тексты времени связи
                 const timeOptions = document.querySelectorAll(
                     "#time-options .time-option",
                 );
@@ -942,14 +945,12 @@
                 timeOptions[1].textContent = strings.time2;
                 timeOptions[2].textContent = strings.time3;
 
-                // Обновить тексты кнопок
                 const btnCancel = $("btn-cancel");
                 if (btnCancel) btnCancel.textContent = strings.btnCancel;
 
                 const btnSubmit = $("btn-submit");
                 if (btnSubmit) btnSubmit.textContent = strings.btnSubmit;
 
-                // Обновить экран "готово"
                 const doneTitle = document.querySelector("#scr-done h1");
                 if (doneTitle) doneTitle.textContent = strings.thankYouTitle;
 
@@ -959,7 +960,6 @@
                 const btnHome = $("btn-home");
                 if (btnHome) btnHome.textContent = strings.btnHome;
 
-                // Обновить переключатель языка (если он есть)
                 const langSwitcherLabel = document.getElementById(
                     "lang-switcher-label",
                 );
@@ -970,47 +970,43 @@
                 const langEnBtn = document.getElementById("lang-en");
                 if (langEnBtn) langEnBtn.textContent = strings.langEn;
 
-                // Обновить активный класс кнопок переключателя
                 const langButtons = document.querySelectorAll(".lang-btn");
                 langButtons.forEach((btn) => {
                     if (btn.getAttribute("data-lang") === langCode) {
-                        btn.classList.add("sel"); // Добавляем класс 'sel' для выбранного языка
+                        btn.classList.add("sel");
                     } else {
-                        btn.classList.remove("sel"); // Убираем класс 'sel' с других
+                        btn.classList.remove("sel");
                     }
                 });
             }
-            // --- /ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ---
 
-            // --- ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА (Изменено: всегда обновляет код страны) ---
+            // --- ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА ---
             function switchLanguage(langCode) {
                 if (STRINGS[langCode]) {
-                    state.language = langCode; // Обновляем язык в состоянии
-                    saveLanguage(langCode); // Сохраняем выбор в localStorage
-                    updateUI(langCode); // Обновляем интерфейс
+                    state.language = langCode;
+                    saveLanguage(langCode);
+                    updateUI(langCode);
                     console.log("Language switched via button to:", langCode);
 
-                    // Обновляем код страны телефона при переключении языка, даже если поле не пустое
                     const phoneInput = $("inp-phone");
                     if (phoneInput) {
                         const currentNumber = phoneInput.value.replace(
                             /^\+\d{1,4}\s*/,
                             "",
-                        ); // Сохраняем введённый номер без кода
-                        const newCode = guessCountryCodeImproved(); // Получаем новый код на основе state.language
-                        phoneInput.value = newCode + " " + currentNumber; // Подставляем новый код и старый номер
+                        );
+                        const newCode = guessCountryCodeImproved();
+                        phoneInput.value = newCode + " " + currentNumber;
                         try {
                             phoneInput.setSelectionRange(
                                 phoneInput.value.length,
                                 phoneInput.value.length,
                             );
-                        } catch {} // Курсор в конец
+                        } catch {}
                     }
                 }
             }
-            // --- /ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА ---
 
-            // Состояние (добавлено поле language)
+            // Состояние
             const state = {
                 service: "treatment",
                 request: "",
@@ -1018,10 +1014,10 @@
                 phone: "",
                 email: null,
                 time: "morning",
-                language: "" /* Будет установлено ниже */,
+                language: "",
             };
 
-            // Выборы (без изменений)
+            // Выборы
             function bindSelectable(containerId, itemClass, key) {
                 const box = $(containerId);
                 for (const el of box.querySelectorAll("." + itemClass)) {
@@ -1033,7 +1029,7 @@
                 }
             }
 
-            // --- Улучшенное автоопределение кода страны (Изменено: учитывает state.language, дефолт - en) ---
+            // --- Улучшенное автоопределение кода страны ---
             const CC_BY_REGION = {
                 RU: "+7",
                 KZ: "+7",
@@ -1059,7 +1055,7 @@
                 "Europe/Berlin": "+49",
                 "Europe/Moscow": "+7",
                 "Asia/Almaty": "+7",
-                "America/": "+1", // любой TZ в Америке
+                "America/": "+1",
             };
 
             function urlCountryCode() {
@@ -1082,12 +1078,10 @@
                 ].filter(Boolean);
                 for (const l of langs) {
                     try {
-                        // Пытаемся достать регион из локали
                         const loc = new Intl.Locale(l);
                         if (loc.region && CC_BY_REGION[loc.region])
                             return loc.region;
                     } catch (_) {
-                        // Fallback: парсим суффикс -RU/-CZ/...
                         const m = String(l).match(/-([A-Z]{2})$/i);
                         if (m) return m[1].toUpperCase();
                     }
@@ -1107,7 +1101,6 @@
             }
 
             function guessCountryCodeImproved() {
-                // 0) Если явный UI-язык уже известен — отдаём код на его основе (самый высокий приоритет)
                 const uiLang = (state.language || "")
                     .split("_")[0]
                     .split("-")[0]
@@ -1119,14 +1112,12 @@
                 if (uiLang === "tr") return "+90";
                 if (uiLang === "uk" || uiLang === "ua") return "+380";
 
-                // 1) Принудительно из URL (параметр cc) — если указан явно админом/ссылкой
                 const forcedUrl = urlCountryCode();
                 if (forcedUrl) {
                     console.log("Using forced code from URL:", forcedUrl);
                     return forcedUrl;
                 }
 
-                // 2) Сохранённый выбор пользователя (localStorage)
                 const saved = savedCountryCode();
                 if (saved) {
                     console.log(
@@ -1136,7 +1127,6 @@
                     return saved;
                 }
 
-                // 3) Регион из языка (Telegram/Browser)
                 const region = languageRegion();
                 if (region && CC_BY_REGION[region]) {
                     console.log(
@@ -1147,14 +1137,12 @@
                     return CC_BY_REGION[region];
                 }
 
-                // 4) Таймзона
                 const byTz = tzToCode();
                 if (byTz) {
                     console.log("Using code based on timezone:", byTz);
                     return byTz;
                 }
 
-                // 5) Слабые эвристики на основе Telegram/Browser language
                 const lang = (
                     tg?.initDataUnsafe?.user?.language_code ||
                     navigator.language ||
@@ -1178,7 +1166,6 @@
                     return "+1";
                 }
 
-                // 6) Дефолт
                 console.log("Using default country code +420");
                 return "+420";
             }
@@ -1187,15 +1174,13 @@
                 const el = $("inp-phone");
                 if (!el) return;
 
-                // Только когда пусто — подставляем
                 if (!el.value.trim()) {
-                    const cc = guessCountryCodeImproved(); // <-- Теперь учитывает state.language
+                    const cc = guessCountryCodeImproved();
                     el.value = cc + " ";
                     try {
                         el.setSelectionRange(el.value.length, el.value.length);
                     } catch {}
 
-                    // Если пользователь руками поменял код — запомним
                     const remember = () => {
                         const m = el.value.trim().match(/^\+\d{1,4}/);
                         if (m) saveCountryCode(m[0]);
@@ -1204,9 +1189,7 @@
                     el.addEventListener("blur", remember);
                 }
             }
-            // -----------------------------------------------
 
-            // Прокрутка инпутов к центру при фокусе (без изменений)
             function ensureVisibleOnFocus(sel) {
                 for (const el of document.querySelectorAll(sel)) {
                     el.addEventListener("focus", () => {
@@ -1219,9 +1202,7 @@
                 }
             }
 
-            // Функция для ограничения ввода только цифр и +
             function restrictPhoneInput(event) {
-                // Разрешаем служебные клавиши (backspace, delete, tab и т.д.)
                 if (event.key === 'Backspace' || event.key === 'Delete' || 
                     event.key === 'Tab' || event.key === 'Escape' || event.key === 'Enter' ||
                     event.key === 'ArrowLeft' || event.key === 'ArrowRight' || 
@@ -1230,33 +1211,27 @@
                     return;
                 }
                 
-                // Разрешаем только цифры и символ +
                 if (!/[0-9+]/.test(event.key)) {
                     event.preventDefault();
                 }
                 
-                // Ограничиваем ввод + только в начале
                 const input = event.target;
                 if (event.key === '+' && input.selectionStart > 0) {
                     event.preventDefault();
                 }
             }
 
-            // Функция для очистки вставленного текста
             function cleanPastedPhone(event) {
                 event.preventDefault();
                 const pastedData = (event.clipboardData || window.clipboardData).getData('text');
                 
-                // Оставляем только цифры и первый +
                 let cleaned = pastedData.replace(/[^\d+]/g, '');
                 
-                // Если есть +, оставляем только первый
                 if (cleaned.includes('+')) {
                     const parts = cleaned.split('+');
                     cleaned = '+' + parts.slice(1).join('');
                 }
                 
-                // Вставляем очищенный текст
                 const start = event.target.selectionStart;
                 const end = event.target.selectionEnd;
                 const value = event.target.value;
@@ -1265,22 +1240,18 @@
                 event.target.setSelectionRange(start + cleaned.length, start + cleaned.length);
             }
 
-            // Упрощенная валидация телефона - проверяем только минимальную длину
             function validatePhone(phone) {
-                // Убираем все нецифровые символы кроме плюса в начале
                 const cleaned = phone.replace(/[^\d+]/g, '');
-                // Проверяем что номер начинается с + и содержит минимум 10 цифр
                 return cleaned.startsWith('+') && cleaned.replace('+', '').length >= 10;
             }
 
-            // Валидация + отправка (изменено: добавлено поле language в payload)
             function submitApp() {
                 const req = $("inp-request").value.trim();
                 if (req.length < 10) {
                     alert(
                         STRINGS[state.language]?.alertReqLength ||
                             STRINGS["en"].alertReqLength,
-                    ); // Используем строку на текущем языке, fallback на en
+                    );
                     $("inp-request").focus();
                     return;
                 }
@@ -1289,12 +1260,11 @@
                 const phoneEl = $("inp-phone");
                 const phoneValue = phoneEl.value.trim();
                 
-                // Упрощенная валидация телефона
                 if (!validatePhone(phoneValue)) {
                     alert(
                         STRINGS[state.language]?.alertPhoneFormat ||
                             STRINGS["en"].alertPhoneFormat,
-                    ); // Используем строку на текущем языке, fallback на en
+                    );
                     phoneEl.focus();
                     return;
                 }
@@ -1305,7 +1275,7 @@
                     alert(
                         STRINGS[state.language]?.alertEmailFormat ||
                             STRINGS["en"].alertEmailFormat,
-                    ); // Используем строку на текущем языке, fallback на en
+                    );
                     $("inp-email").focus();
                     return;
                 }
@@ -1318,7 +1288,7 @@
                     phone: state.phone,
                     email: state.email,
                     time: state.time,
-                    language: state.language, // <-- Добавляем язык в payload (язык интерфейса на момент отправки)
+                    language: state.language,
                     ts: Date.now(),
                 };
 
@@ -1327,23 +1297,22 @@
                     alert(
                         STRINGS[state.language]?.botThankYou ||
                             STRINGS["en"].botThankYou,
-                    ); // fallback на en
+                    );
                     tg.close();
                 } else {
                     console.log("Demo payload:", payload);
                     alert(
                         STRINGS[state.language]?.demoSend ||
                             STRINGS["en"].demoSend,
-                    ); // fallback на en
+                    );
                     document.getElementById("form").style.display = "none";
                     document.getElementById("scr-done").style.display = "block";
-                    // Также обновляем текст на экране "готово" на случай демонстрации
                     document.querySelector("#scr-done h1").textContent =
                         STRINGS[state.language]?.thankYouTitle ||
-                        STRINGS["en"].thankYouTitle; // fallback на en
+                        STRINGS["en"].thankYouTitle;
                     document.querySelector("#scr-done p.muted").textContent =
                         STRINGS[state.language]?.thankYouText ||
-                        STRINGS["en"].thankYouText; // fallback на en
+                        STRINGS["en"].thankYouText;
                 }
             }
 
@@ -1356,45 +1325,37 @@
                 }
             }
 
-            // Инициализация (изменено: определяем язык и обновляем UI)
+            // Инициализация
             (function init() {
-                // 1. Определяем язык (Telegram/Browser приоритет над localStorage, fallback на en)
-                state.language = detectLanguage(); // Сохраняем определенный язык в state
-
-                // 2. Обновляем интерфейс на основе определенного языка
+                state.language = detectLanguage();
                 updateUI(state.language);
 
-                // 3. Привязываем выборы (без изменений)
                 bindSelectable("service-options", "service-option", "service");
                 bindSelectable("method-opts", "opt", "method");
                 bindSelectable("time-options", "time-option", "time");
 
-                // 4. Привязываем кнопки (без изменений)
                 $("btn-submit").onclick = submitApp;
                 $("btn-cancel").onclick = closeApp;
                 $("btn-home").onclick = () => {
                     location.reload();
                 };
 
-                // 5. Добавляем обработчики для переключателя языка
                 document.getElementById("lang-ru").onclick = () =>
                     switchLanguage("ru");
                 document.getElementById("lang-en").onclick = () =>
                     switchLanguage("en");
 
-                // 6. Добавляем обработчики для ограничения ввода в поле телефона
                 const phoneInput = $("inp-phone");
                 if (phoneInput) {
                     phoneInput.addEventListener('keydown', restrictPhoneInput);
                     phoneInput.addEventListener('paste', cleanPastedPhone);
                 }
 
-                // 7. Другие инициализации (без изменений)
                 ensureVisibleOnFocus("input, textarea, select");
-                prefillPhoneImproved(); // <— НОВАЯ версия, учитывает state.language
+                prefillPhoneImproved();
 
                 console.log(
-                    "Initialization complete. Current language (from Telegram/Browser/storage/detect):",
+                    "Initialization complete. Current language:",
                     state.language,
                 );
             })();

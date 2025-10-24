@@ -52,7 +52,7 @@
                 align-items: center;
                 gap: 12px;
                 margin: 2px 0 16px;
-                min-height: 56px; /* логотип и переключатель в одной линии */
+                min-height: 56px;
             }
             .logo {
                 width: 44px;
@@ -205,7 +205,7 @@
                 flex: 1 1 0;
                 display: flex;
                 align-items: center;
-                justify-content: center; /* горизонтальный центр для иконки+текста */
+                justify-content: center;
                 gap: 10px;
                 border: 1px solid #e3edf0;
                 border-radius: 14px;
@@ -252,16 +252,15 @@
                 color: #5b6b76;
                 display: flex;
                 align-items: center;
-                justify-content: center; /* центрируем содержимое по горизонтали */
+                justify-content: center;
                 gap: 8px;
                 min-height: 54px;
                 text-align: center;
-                /* ограничение до 2 строк с аккуратной центровкой */
                 overflow: hidden;
                 display: -webkit-box;
                 -webkit-line-clamp: 2;
                 -webkit-box-orient: vertical;
-                white-space: normal; /* позволяем перенос строк внутри -webkit-box */
+                white-space: normal;
             }
             .service-option.sel {
                 border-color: #b9efe7;
@@ -306,6 +305,142 @@
                 );
                 padding-top: 8px;
             }
+
+            /* ========== АДАПТИВНОСТЬ ДЛЯ УЗКИХ ЭКРАНОВ ========== */
+            @media (max-width: 480px) {
+                .wrap {
+                    padding: 16px 12px calc(16px + env(safe-area-inset-bottom));
+                }
+                
+                .brand {
+                    gap: 10px;
+                    margin: 0 0 14px;
+                }
+                
+                .logo {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 12px;
+                }
+                
+                .brand h2 {
+                    font-size: 16px;
+                }
+                
+                .lang-switcher {
+                    gap: 6px;
+                }
+                
+                .lang-btn {
+                    padding: 5px 8px;
+                    font-size: 11px;
+                    min-width: 38px;
+                }
+                
+                .card {
+                    border-radius: 18px;
+                    padding: 16px;
+                }
+                
+                h1 {
+                    font-size: 20px;
+                    margin: 0 0 8px;
+                }
+                
+                .muted {
+                    font-size: 13px;
+                }
+                
+                .grid {
+                    gap: 12px;
+                }
+                
+                /* Услуги в один столбец на узких экранах */
+                .service-grid {
+                    grid-template-columns: 1fr;
+                    gap: 8px;
+                }
+                
+                .service-option {
+                    padding: 12px 10px;
+                    font-size: 13px;
+                    min-height: 50px;
+                    -webkit-line-clamp: 3; /* Разрешаем до 3 строк на узких экранах */
+                }
+                
+                /* Варианты времени в один ряд с переносом текста */
+                .time-options {
+                    grid-template-columns: 1fr;
+                    gap: 8px;
+                }
+                
+                .time-option {
+                    padding: 10px 8px;
+                    font-size: 12px;
+                    white-space: normal; /* Разрешаем перенос текста */
+                    -webkit-line-clamp: 2;
+                    display: -webkit-box;
+                    -webkit-box-orient: vertical;
+                    min-height: 44px;
+                    line-height: 1.3;
+                }
+                
+                /* Кнопки действий на всю ширину */
+                .cta {
+                    flex-direction: column;
+                }
+                
+                .btn {
+                    height: 50px;
+                    border-radius: 14px;
+                    font-size: 15px;
+                }
+                
+                /* Уменьшаем отступы в полях ввода */
+                input, textarea, select {
+                    padding: 11px 12px;
+                    border-radius: 12px;
+                    font-size: 15px;
+                }
+                
+                textarea {
+                    min-height: 100px;
+                }
+                
+                /* Методы связи тоже в колонку на очень узких экранах */
+                @media (max-width: 360px) {
+                    .method {
+                        flex-direction: column;
+                        gap: 8px;
+                    }
+                    
+                    .method .opt {
+                        padding: 10px;
+                    }
+                }
+            }
+
+            /* Дополнительные улучшения для средних экранов */
+            @media (max-width: 600px) and (min-width: 481px) {
+                .service-grid {
+                    grid-template-columns: 1fr;
+                }
+                
+                .time-options {
+                    grid-template-columns: repeat(3, 1fr);
+                }
+                
+                .time-option {
+                    font-size: 12px;
+                    padding: 10px 6px;
+                    white-space: normal;
+                    min-height: 44px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    line-height: 1.2;
+                }
+            }
         </style>
     </head>
     <body>
@@ -316,17 +451,13 @@
                 <!-- Переключатель языка -->
                 <div class="lang-switcher">
                     <span id="lang-switcher-label">Language:</span>
-                    <!-- Текст будет обновлен updateUI -->
                     <button id="lang-ru" class="lang-btn" data-lang="ru">
                         RU
                     </button>
-                    <!-- Текст будет обновлен updateUI -->
                     <button id="lang-en" class="lang-btn" data-lang="en">
                         EN
                     </button>
-                    <!-- Текст будет обновлен updateUI -->
                 </div>
-                <!-- /Переключатель языка -->
             </div>
 
             <!-- форма статично, без выдвижения -->
@@ -418,7 +549,6 @@
                             type="tel"
                             inputmode="tel"
                             placeholder="+1234567890"
-                            pattern="^\\+[1-9]\\d{1,14}$"
                             required
                         />
                         <div class="hint">
@@ -517,7 +647,7 @@
                     alertReqLength:
                         "Опишите запрос подробнее (минимум 10 символов).",
                     alertPhoneFormat:
-                        "Укажите телефон в международном формате (пример: +491234567890).",
+                        "Укажите корректный номер телефона (минимум 10 цифр).",
                     alertEmailFormat: "Похоже, e-mail введён с ошибкой.",
                     thankYouTitle: "Заявка отправлена",
                     thankYouText: "Мы свяжемся с вами в ближайшее время.",
@@ -558,7 +688,7 @@
                     alertReqLength:
                         "Please describe your request in more detail (minimum 10 characters).",
                     alertPhoneFormat:
-                        "Please enter the phone number in international format (e.g., +491234567890).",
+                        "Please enter a valid phone number (minimum 10 digits).",
                     alertEmailFormat:
                         "The email address seems to be entered incorrectly.",
                     thankYouTitle: "Request Sent",
@@ -844,7 +974,6 @@
             }
 
             // --- Улучшенное автоопределение кода страны (Изменено: учитывает state.language, дефолт - en) ---
-            // (Весь ваш текущий код для определения кода страны остается как есть)
             const CC_BY_REGION = {
                 RU: "+7",
                 KZ: "+7",
@@ -1030,11 +1159,58 @@
                 }
             }
 
-            // Санитайзер телефона (без изменений)
-            function sanitizePhone(raw) {
-                let s = raw.replace(/[\u00A0\s\-\.\(\)]/g, ""); // пробелы/дефисы/скобки
-                s = s.replace(/(?!^)\+/g, "").replace(/[^\d+]/g, ""); // оставить + и цифры
-                return s;
+            // Функция для ограничения ввода только цифр и +
+            function restrictPhoneInput(event) {
+                // Разрешаем служебные клавиши (backspace, delete, tab и т.д.)
+                if (event.key === 'Backspace' || event.key === 'Delete' || 
+                    event.key === 'Tab' || event.key === 'Escape' || event.key === 'Enter' ||
+                    event.key === 'ArrowLeft' || event.key === 'ArrowRight' || 
+                    event.key === 'ArrowUp' || event.key === 'ArrowDown' ||
+                    (event.ctrlKey && (event.key === 'a' || event.key === 'c' || event.key === 'v' || event.key === 'x'))) {
+                    return;
+                }
+                
+                // Разрешаем только цифры и символ +
+                if (!/[0-9+]/.test(event.key)) {
+                    event.preventDefault();
+                }
+                
+                // Ограничиваем ввод + только в начале
+                const input = event.target;
+                if (event.key === '+' && input.selectionStart > 0) {
+                    event.preventDefault();
+                }
+            }
+
+            // Функция для очистки вставленного текста
+            function cleanPastedPhone(event) {
+                event.preventDefault();
+                const pastedData = (event.clipboardData || window.clipboardData).getData('text');
+                
+                // Оставляем только цифры и первый +
+                let cleaned = pastedData.replace(/[^\d+]/g, '');
+                
+                // Если есть +, оставляем только первый
+                if (cleaned.includes('+')) {
+                    const parts = cleaned.split('+');
+                    cleaned = '+' + parts.slice(1).join('');
+                }
+                
+                // Вставляем очищенный текст
+                const start = event.target.selectionStart;
+                const end = event.target.selectionEnd;
+                const value = event.target.value;
+                
+                event.target.value = value.substring(0, start) + cleaned + value.substring(end);
+                event.target.setSelectionRange(start + cleaned.length, start + cleaned.length);
+            }
+
+            // Упрощенная валидация телефона - проверяем только минимальную длину
+            function validatePhone(phone) {
+                // Убираем все нецифровые символы кроме плюса в начале
+                const cleaned = phone.replace(/[^\d+]/g, '');
+                // Проверяем что номер начинается с + и содержит минимум 10 цифр
+                return cleaned.startsWith('+') && cleaned.replace('+', '').length >= 10;
             }
 
             // Валидация + отправка (изменено: добавлено поле language в payload)
@@ -1051,22 +1227,24 @@
                 state.request = req;
 
                 const phoneEl = $("inp-phone");
-                phoneEl.value = sanitizePhone(phoneEl.value);
-                if (!phoneEl.checkValidity()) {
+                const phoneValue = phoneEl.value.trim();
+                
+                // Упрощенная валидация телефона
+                if (!validatePhone(phoneValue)) {
                     alert(
                         STRINGS[state.language]?.alertPhoneFormat ||
-                            STRINGS["en"].alertReqLength,
+                            STRINGS["en"].alertPhoneFormat,
                     ); // Используем строку на текущем языке, fallback на en
                     phoneEl.focus();
                     return;
                 }
-                state.phone = phoneEl.value.trim();
+                state.phone = phoneValue;
 
                 const email = $("inp-email").value.trim();
                 if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
                     alert(
                         STRINGS[state.language]?.alertEmailFormat ||
-                            STRINGS["en"].alertReqLength,
+                            STRINGS["en"].alertEmailFormat,
                     ); // Используем строку на текущем языке, fallback на en
                     $("inp-email").focus();
                     return;
@@ -1086,7 +1264,6 @@
 
                 if (tg) {
                     tg.sendData(JSON.stringify(payload));
-                    // alert('Заявка отправлена. Спасибо!'); // Заменяем на сообщение на языке пользователя
                     alert(
                         STRINGS[state.language]?.botThankYou ||
                             STRINGS["en"].botThankYou,
@@ -1094,7 +1271,6 @@
                     tg.close();
                 } else {
                     console.log("Demo payload:", payload);
-                    // alert('Откройте форму из Telegram для реальной отправки.'); // Заменяем на сообщение на языке пользователя
                     alert(
                         STRINGS[state.language]?.demoSend ||
                             STRINGS["en"].demoSend,
@@ -1146,7 +1322,14 @@
                 document.getElementById("lang-en").onclick = () =>
                     switchLanguage("en");
 
-                // 6. Другие инициализации (без изменений)
+                // 6. Добавляем обработчики для ограничения ввода в поле телефона
+                const phoneInput = $("inp-phone");
+                if (phoneInput) {
+                    phoneInput.addEventListener('keydown', restrictPhoneInput);
+                    phoneInput.addEventListener('paste', cleanPastedPhone);
+                }
+
+                // 7. Другие инициализации (без изменений)
                 ensureVisibleOnFocus("input, textarea, select");
                 prefillPhoneImproved(); // <— НОВАЯ версия, учитывает state.language
 
