@@ -1293,12 +1293,20 @@
                 };
 
                 if (tg) {
-                    tg.sendData(JSON.stringify(payload));
-                    alert(
-                        STRINGS[state.language]?.botThankYou ||
-                            STRINGS["en"].botThankYou,
-                    );
-                    tg.close();
+                    try {
+            tg.sendData(JSON.stringify(payload));
+            console.log("Data sent successfully");
+            
+            // Даем время на отправку перед закрытием
+            setTimeout(() => {
+                tg.close();
+                console.log("WebApp closed");
+            }, 500);
+            
+        } catch (error) {
+            console.error("Error sending data:", error);
+            alert("Ошибка отправки. Попробуйте еще раз.");
+        }
                 } else {
                     console.log("Demo payload:", payload);
                     alert(
