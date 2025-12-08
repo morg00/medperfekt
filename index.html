@@ -691,9 +691,31 @@
         </div>
 
         <script>
-            // ... (JavaScript код остается без изменений, так как он уже работает корректно)
-            const tg = window.Telegram?.WebApp;
-            tg?.ready();
+            // Глобальная переменная для Telegram WebApp
+            let tg = null;
+
+            // Функция для инициализации Telegram WebApp после загрузки скрипта
+            function initTelegramWebApp() {
+                if (window.Telegram?.WebApp) {
+                    tg = window.Telegram.WebApp;
+                    tg.ready();
+                    tg.expand();
+                    console.log("Telegram WebApp initialized");
+                } else {
+                    console.log("Telegram WebApp not available (running in browser)");
+                }
+            }
+
+            // Ждём загрузки скрипта telegram-web-app.js
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    // Даём скрипту время на загрузку
+                    setTimeout(initTelegramWebApp, 100);
+                });
+            } else {
+                // DOM уже загружен
+                setTimeout(initTelegramWebApp, 100);
+            }
 
             const $ = (id) => document.getElementById(id);
 
@@ -1301,92 +1323,106 @@
             }
 
             async function submitApp() {
-    const req = $("inp-request").value.trim();
-    if (req.length < 10) {
-        alert(STRINGS[state.language]?.alertReqLength || "Минимум 10 символов");
-        $("inp-request").focus();
-        return;
-    }
-    state.request = req;
+                const req = $("inp-request").value.trim();
+                if (req.length < 10) {
+                    alert(
+                        STRINGS[state.language]?.alertReqLength ||
+                            STRINGS["en"].alertReqLength,
+                    );
+                    $("inp-request").focus();
+                    return;
+                }
+                state.request = req;
 
-    const phoneEl = $("inp-phone");
-    const phoneValue = phoneEl.value.trim();
-    if (!validatePhone(phoneValue)) {
-        alert(STRINGS[state.language]?.alertPhoneFormat || "Неверный формат телефона");
-        phoneEl.focus();
-        return;
-    }
-    state.phone = phoneValue;
+                const phoneEl = $("inp-phone");
+                const phoneValue = phoneEl.value.trim();
+                
+                if (!validatePhone(phoneValue)) {
+                    alert(
+                        STRINGS[state.language]?.alertPhoneFormat ||
+                            STRINGS["en"].alertPhoneFormat,
+                    );
+                    phoneEl.focus();
+                    return;
+                }
+                state.phone = phoneValue;
 
-    const email = $("inp-email").value.trim();
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-        alert(STRINGS[state.language]?.alertEmailFormat || "Неверный email");
-        $("inp-email").focus();
-        return;
-    }
-    state.email = email || null;
+                const email = $("inp-email").value.trim();
+                if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+                    alert(
+                        STRINGS[state.language]?.alertEmailFormat ||
+                            STRINGS["en"].alertEmailFormat,
+                    );
+                    $("inp-email").focus();
+                    return;
+                }
+                state.email = email || null;
 
-    const formData = {
-        service: state.service,
-        request: state.request,
-        method: state.method,
-        phone: state.phone,
-        email: state.email,
-        time: state.time,
-        language: state.language,
-        ts: Date.now(),
-    };
+                const formData = {
+                    service: state.service,
+                    request: state.request,
+                    method: state.method,
+                    phone: state.phone,
+                    email: state.email,
+                    time: state.time,
+                    language: state.language,
+                    ts: Date.now(),
+                };
 
-    setSubmitLoading(true);
+                // Блокируем кнопки и показываем состояние загрузки
+                setSubmitLoading(true);
 
-    try {
-        const tg = window.Telegram?.WebApp;
+                try {
+                    // 1. Обычная кнопка в чате — используем sendData
+                    if (tg && typeof tg.sendData === 'function') {
+                        tg.sendData(JSON.stringify(formData));
+                        // Бот получит web_app_data, ничего больше не делаем
+                        return;
+                    }
 
-        // ЕСЛИ ЕСТЬ sendData — используем его (обычная кнопка в чате)
-        if (tg?.sendData) {
-            tg.sendData(JSON.stringify(formData));
-            // Ничего больше не делаем — бот сам получит web_app_data
-            return;
-        }
+                    // 2. Синяя кнопка (Menu Button) или браузер — POST на сервер
+                    const queryId = tg?.initDataUnsafe?.query_id || `demo_${Date.now()}`;
+                    const user = tg?.initDataUnsafe?.user || { id: "demo_user", first_name: "Тест" };
 
-        // ИНАЧЕ — синяя кнопка или демо — отправляем на сервер
-        if (tg?.initDataUnsafe?.query_id) {
-            const response = await fetch("https://medperfekt.duckdns.org/webapp-callback", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    query_id: tg.initDataUnsafe.query_id,
-                    formData: formData,
-                    user: tg.initDataUnsafe.user || {}
-                })
-            });
+                    const response = await fetch("https://medperfekt.duckdns.org/webapp-callback", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            query_id: queryId,
+                            formData: formData,
+                            user: user,
+                        }),
+                    });
 
-            if (!response.ok) {
-                const err = await response.text();
-                throw new Error(err || "Сервер не ответил");
+                    if (!response.ok) {
+                        const err = await response.text();
+                        throw new Error(err || `HTTP ${response.status}`);
+                    }
+
+                    // Показываем успешное сообщение
+                    if (tg && typeof tg.showAlert === 'function') {
+                        tg.showAlert("Заявка успешно отправлена!");
+                        tg.close();
+                    } else {
+                        alert("Заявка успешно отправлена!");
+                        document.getElementById("form").style.display = "none";
+                        document.getElementById("scr-done").style.display = "block";
+                        document.querySelector("#scr-done h1").textContent =
+                            STRINGS[state.language]?.thankYouTitle ||
+                            STRINGS["en"].thankYouTitle;
+                        document.querySelector("#scr-done p.muted").textContent =
+                            STRINGS[state.language]?.thankYouText ||
+                            STRINGS["en"].thankYouText;
+                        setSubmitLoading(false);
+                    }
+                } catch (error) {
+                    setSubmitLoading(false);
+                    alert("Ошибка отправки: " + (error.message || "неизвестно"));
+                    console.error("Submit error:", error);
+                }
             }
-
-            tg.showAlert("Заявка успешно отправлена!");
-            tg.close();
-        } else {
-            // Даже если не из Telegram — отправляем на сервер как демо
-            await fetch("https://medperfekt.duckdns.org/webapp-callback", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    query_id: "demo_" + Date.now(),
-                    formData: formData,
-                    user: { id: "demo_user", first_name: "Тест" }
-                })
-            });
-            alert("Заявка отправлена (демо-режим)");
-        }
-    } catch (error) {
-        setSubmitLoading(false);
-        alert("Ошибка: " + (error.message || "неизвестно"));
-        console.error("Submit error:", error);
-    }
-}
 
             function closeApp() {
                 if (tg) {
