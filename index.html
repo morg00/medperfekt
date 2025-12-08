@@ -1192,6 +1192,9 @@
 
             function ensureVisibleOnFocus(sel) {
                 for (const el of document.querySelectorAll(sel)) {
+                    // Пропускаем поле телефона - для него отдельная обработка
+                    if (el.id === "inp-phone") continue;
+                    
                     el.addEventListener("focus", () => {
                         el.scrollIntoView({
                             behavior: "smooth",
@@ -1200,6 +1203,41 @@
                         });
                     });
                 }
+            }
+            
+            // Отдельная обработка для поля телефона - только при явном фокусе пользователем
+            function setupPhoneFieldFocus() {
+                const phoneInput = $("inp-phone");
+                if (!phoneInput) return;
+                
+                let isUserInteraction = false;
+                
+                // Отслеживаем клик пользователя
+                phoneInput.addEventListener("mousedown", () => {
+                    isUserInteraction = true;
+                });
+                
+                // Отслеживаем Tab навигацию
+                phoneInput.addEventListener("keydown", (e) => {
+                    if (e.key === "Tab") {
+                        isUserInteraction = true;
+                    }
+                });
+                
+                // Прокручиваем только если это было взаимодействие пользователя
+                phoneInput.addEventListener("focus", () => {
+                    if (isUserInteraction) {
+                        phoneInput.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center",
+                            inline: "nearest",
+                        });
+                    }
+                    // Сбрасываем флаг после небольшой задержки
+                    setTimeout(() => {
+                        isUserInteraction = false;
+                    }, 100);
+                });
             }
 
             function restrictPhoneInput(event) {
@@ -1293,20 +1331,12 @@
                 };
 
                 if (tg) {
-                    try {
-            tg.sendData(JSON.stringify(payload));
-            console.log("Data sent successfully");
-            
-            // Даем время на отправку перед закрытием
-            setTimeout(() => {
-                tg.close();
-                console.log("WebApp closed");
-            }, 500);
-            
-        } catch (error) {
-            console.error("Error sending data:", error);
-            alert("Ошибка отправки. Попробуйте еще раз.");
-        }
+                    tg.sendData(JSON.stringify(payload));
+                    alert(
+                        STRINGS[state.language]?.botThankYou ||
+                            STRINGS["en"].botThankYou,
+                    );
+                    tg.close();
                 } else {
                     console.log("Demo payload:", payload);
                     alert(
@@ -1360,6 +1390,7 @@
                 }
 
                 ensureVisibleOnFocus("input, textarea, select");
+                setupPhoneFieldFocus();
                 prefillPhoneImproved();
 
                 console.log(
