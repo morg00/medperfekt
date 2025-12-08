@@ -1277,7 +1277,30 @@
                 return cleaned.startsWith('+') && cleaned.replace('+', '').length >= 10;
             }
 
-            function submitApp() {
+            function setSubmitLoading(isLoading) {
+                const btnSubmit = $("btn-submit");
+                const btnCancel = $("btn-cancel");
+                
+                if (btnSubmit) {
+                    btnSubmit.disabled = isLoading;
+                    if (isLoading) {
+                        const originalText = btnSubmit.textContent;
+                        btnSubmit.dataset.originalText = originalText;
+                        btnSubmit.textContent = "Отправка...";
+                    } else {
+                        const originalText = btnSubmit.dataset.originalText;
+                        if (originalText) {
+                            btnSubmit.textContent = originalText;
+                        }
+                    }
+                }
+                
+                if (btnCancel) {
+                    btnCancel.disabled = isLoading;
+                }
+            }
+
+            async function submitApp() {
                 const req = $("inp-request").value.trim();
                 if (req.length < 10) {
                     alert(
@@ -1313,7 +1336,7 @@
                 }
                 state.email = email || null;
 
-                const payload = {
+                const formData = {
                     service: state.service,
                     request: state.request,
                     method: state.method,
@@ -1324,27 +1347,59 @@
                     ts: Date.now(),
                 };
 
-                if (tg) {
-                    tg.sendData(JSON.stringify(payload));
-                    alert(
-                        STRINGS[state.language]?.botThankYou ||
-                            STRINGS["en"].botThankYou,
-                    );
-                    tg.close();
-                } else {
-                    console.log("Demo payload:", payload);
-                    alert(
-                        STRINGS[state.language]?.demoSend ||
-                            STRINGS["en"].demoSend,
-                    );
-                    document.getElementById("form").style.display = "none";
-                    document.getElementById("scr-done").style.display = "block";
-                    document.querySelector("#scr-done h1").textContent =
-                        STRINGS[state.language]?.thankYouTitle ||
-                        STRINGS["en"].thankYouTitle;
-                    document.querySelector("#scr-done p.muted").textContent =
-                        STRINGS[state.language]?.thankYouText ||
-                        STRINGS["en"].thankYouText;
+                // Блокируем кнопки и показываем состояние загрузки
+                setSubmitLoading(true);
+
+                try {
+                    // Проверяем, есть ли chat в initDataUnsafe (открыто через кнопку в чате)
+                    if (tg && tg.initDataUnsafe?.chat) {
+                        // Отправка через кнопку в чате
+                        tg.sendData(JSON.stringify(formData));
+                        tg.showAlert("Заявка успешно отправлена!");
+                        tg.close();
+                    } else if (tg && tg.initDataUnsafe) {
+                        // Отправка через синюю кнопку в списке чатов
+                        const response = await fetch("http://89.104.66.5:8000/webapp-callback", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                                query_id: tg.initDataUnsafe.query_id,
+                                formData: formData,
+                                user: tg.initDataUnsafe.user,
+                            }),
+                        });
+
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            throw new Error(errorText || `HTTP error! status: ${response.status}`);
+                        }
+
+                        tg.showAlert("Заявка успешно отправлена!");
+                        tg.close();
+                    } else {
+                        // Демо-режим (без Telegram)
+                        console.log("Demo payload:", formData);
+                        alert(
+                            STRINGS[state.language]?.demoSend ||
+                                STRINGS["en"].demoSend,
+                        );
+                        document.getElementById("form").style.display = "none";
+                        document.getElementById("scr-done").style.display = "block";
+                        document.querySelector("#scr-done h1").textContent =
+                            STRINGS[state.language]?.thankYouTitle ||
+                            STRINGS["en"].thankYouTitle;
+                        document.querySelector("#scr-done p.muted").textContent =
+                            STRINGS[state.language]?.thankYouText ||
+                            STRINGS["en"].thankYouText;
+                        setSubmitLoading(false);
+                    }
+                } catch (error) {
+                    setSubmitLoading(false);
+                    const errorMessage = error.message || "Произошла ошибка при отправке заявки";
+                    alert(errorMessage);
+                    console.error("Submit error:", error);
                 }
             }
 
