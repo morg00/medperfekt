@@ -529,7 +529,6 @@
                 <h2>Medperfekt</h2>
                 <!-- Переключатель языка -->
                 <div class="lang-switcher">
-                    <span id="lang-switcher-label">Language:</span>
                     <button id="lang-ru" class="lang-btn" data-lang="ru">
                         RU
                     </button>
@@ -960,11 +959,6 @@
                 const btnHome = $("btn-home");
                 if (btnHome) btnHome.textContent = strings.btnHome;
 
-                const langSwitcherLabel = document.getElementById(
-                    "lang-switcher-label",
-                );
-                if (langSwitcherLabel)
-                    langSwitcherLabel.textContent = strings.langSwitcherLabel;
                 const langRuBtn = document.getElementById("lang-ru");
                 if (langRuBtn) langRuBtn.textContent = strings.langRu;
                 const langEnBtn = document.getElementById("lang-en");
