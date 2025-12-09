@@ -1373,15 +1373,15 @@
                 if (!hasTg || platform === 'web' || !hasInitData) {
                     // mode = "browser";
                     mode = "reply_keyboard";
-                    alert("Режим: кнопки в чате");
+                    // alert("Режим: кнопки в чате");
                 } else if (hasQueryId && !hasSendData) {
                     // mode = "menu_button"; // Синяя кнопка
                     mode = "reply_keyboard";
-                    alert("Режим: Кнопка в чате");
+                    // alert("Режим: Кнопка в чате");
                 } else if (hasSendData && hasInitData) {
                     // mode = "reply_keyboard"; // Кнопка в чате
                     mode = "menu_button"; // Синяя кнопка
-                    alert("Режим: Синяя кнопка");
+                    // alert("Режим: Синяя кнопка");
                 }
 
                 // Debug логирование
