@@ -1371,7 +1371,8 @@
                 // 3. КНОПКА В ЧАТЕ: есть tg, есть sendData, есть initData
                 
                 if (!hasTg || platform === 'web' || !hasInitData) {
-                    mode = "browser";
+                    // mode = "browser";
+                    mode = "reply_keyboard";
                 } else if (hasQueryId && !hasSendData) {
                     // mode = "menu_button"; // Синяя кнопка
                     mode = "reply_keyboard";
