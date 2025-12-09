@@ -1312,7 +1312,7 @@
                 }
             }
 
-        async function submitApp() {
+            async function submitApp() {
             // 1. Собираем данные формы
             const req = $("inp-request").value.trim();
             if (req.length < 10) {
@@ -1345,7 +1345,17 @@
             let userId = 0;
             let queryId = "browser_" + Date.now();
 
-            // КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: Сначала собираем данные пользователя из Telegram
+            // 3. КЛЮЧЕВАЯ ФУНКЦИЯ: надёжное определение Telegram
+            // КЛЮЧЕВАЯ ФУНКЦИЯ: надёжное определение Telegram
+            function isReallyTelegram() {
+                // Способ 1: Проверяем специальный хэш в URL, который добавляет Telegram
+                if (window.location.hash.includes('tgWebAppData')) return true;
+                // Способ 2: Проверяем наличие реальных данных от Telegram (непустая initData)
+                if (tg?.initData && tg.initData.trim().length > 10) return true;
+                return false;
+            }
+
+            // Собираем данные пользователя, если они есть
             if (tg?.initDataUnsafe?.user) {
                 const user = tg.initDataUnsafe.user;
                 const firstName = user.first_name || "";
@@ -1358,7 +1368,7 @@
                 }
             }
 
-            // 3. Формируем данные для отправки
+            // 4. Формируем данные для отправки
             const data = {
                 service: state.service,
                 request: state.request,
@@ -1372,38 +1382,38 @@
                 timestamp: new Date().toISOString()
             };
 
-            // 4. Блокируем кнопку отправки
+            // 5. Блокируем кнопку отправки
             setSubmitLoading(true);
 
+            // 6. ДЕБАГ: выводим информацию для диагностики
+            // 6. ДЕБАГ: выводим информацию для диагностики
+            console.log("=== ДИАГНОСТИКА v2 ===");
+            console.log("URL hash:", window.location.hash);
+            console.log("tg существует:", !!tg);
+            console.log("tg.initData (длина):", tg?.initData?.length || 0, "значение:", tg?.initData);
+            console.log("tg.platform:", tg?.platform);
+            console.log("isReallyTelegram():", isReallyTelegram());
+            console.log("typeof tg.sendData:", typeof tg?.sendData);
+            console.log("===================");
             try {
-                // 5. КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: Правильная проверка для Telegram
-                // tg.sendData существует ТОЛЬКО внутри Telegram Web App
-                if (tg && typeof tg.sendData === 'function') {
-                    console.log("Режим: Telegram (sendData доступен), отправляем через sendData");
+                // 7. ОСНОВНАЯ ЛОГИКА: если это настоящий Telegram
+                if (isReallyTelegram() && tg && typeof tg.sendData === 'function') {
+                    console.log("Режим: НАСТОЯЩИЙ Telegram, отправляем через sendData");
                     
                     tg.sendData(JSON.stringify(data));
                     
-                    // Добавляем небольшую задержку перед показом алерта
+                    // Просто закрываем WebApp через секунду
                     setTimeout(() => {
-                        if (typeof tg.showAlert === 'function') {
-                            tg.showAlert("✅ Заявка отправлена!", () => {
-                                setTimeout(() => {
-                                    if (typeof tg.close === 'function') {
-                                        tg.close();
-                                    }
-                                }, 1000);
-                            });
-                        } else if (typeof tg.close === 'function') {
-                            setTimeout(() => tg.close(), 1500);
+                        if (typeof tg.close === 'function') {
+                            tg.close();
                         }
-                    }, 100);
+                    }, 1000);
                     
-                    // В Telegram кнопка остается заблокированной - это нормально
-                    return;
+                    return; // Выходим, кнопка остаётся заблокированной
                 }
 
-                // 6. Если не в Telegram (браузер) - используем fetch
-                console.log("Режим: Браузер, используем fetch API");
+                // 8. Если дошли сюда, значит это БРАУЗЕР
+                console.log("Режим: Браузер, отправляем через fetch");
                 
                 const payload = {
                     query_id: queryId,
@@ -1423,7 +1433,7 @@
                 });
 
                 if (response.ok) {
-                    // 7. Успешная отправка в браузере
+                    // Успешная отправка в браузере
                     alert("✅ Заявка успешно отправлена!");
                     
                     // Показываем экран успеха
@@ -1446,13 +1456,10 @@
                 } else {
                     throw new Error(`Ошибка сервера: ${response.status}`);
                 }
+                
             } catch (error) {
                 console.error("Полная ошибка:", error);
-                
-                // Упрощенное сообщение об ошибке для пользователя
                 alert(`❌ Ошибка отправки. Проверьте консоль для деталей.`);
-                
-                // Разблокируем кнопку при ошибке
                 setSubmitLoading(false);
             }
         }
