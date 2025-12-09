@@ -1312,136 +1312,150 @@
                 }
             }
 
-            async function submitApp() {
-                // 1. Собираем данные формы
-                const req = $("inp-request").value.trim();
-                if (req.length < 10) {
-                    alert(STRINGS[state.language]?.alertReqLength || STRINGS["en"].alertReqLength);
-                    $("inp-request").focus();
-                    return;
-                }
-                state.request = req;
+        async function submitApp() {
+            // 1. Собираем данные формы
+            const req = $("inp-request").value.trim();
+            if (req.length < 10) {
+                alert(STRINGS[state.language]?.alertReqLength || STRINGS["en"].alertReqLength);
+                $("inp-request").focus();
+                return;
+            }
+            state.request = req;
 
-                const phoneEl = $("inp-phone");
-                const phoneValue = phoneEl.value.trim();
+            const phoneEl = $("inp-phone");
+            const phoneValue = phoneEl.value.trim();
+            
+            if (!validatePhone(phoneValue)) {
+                alert(STRINGS[state.language]?.alertPhoneFormat || STRINGS["en"].alertPhoneFormat);
+                phoneEl.focus();
+                return;
+            }
+            state.phone = phoneValue;
+
+            const email = $("inp-email").value.trim();
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+                alert(STRINGS[state.language]?.alertEmailFormat || STRINGS["en"].alertEmailFormat);
+                $("inp-email").focus();
+                return;
+            }
+            state.email = email || null;
+
+            // 2. Определяем данные пользователя и query_id
+            let userName = "Гость";
+            let userId = 0;
+            let queryId = "browser_" + Date.now();
+
+            // КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: Сначала собираем данные пользователя из Telegram
+            if (tg?.initDataUnsafe?.user) {
+                const user = tg.initDataUnsafe.user;
+                const firstName = user.first_name || "";
+                const lastName = user.last_name || "";
+                userName = lastName ? `${firstName} ${lastName}`.trim() : firstName;
+                userId = user.id || 0;
                 
-                if (!validatePhone(phoneValue)) {
-                    alert(STRINGS[state.language]?.alertPhoneFormat || STRINGS["en"].alertPhoneFormat);
-                    phoneEl.focus();
-                    return;
-                }
-                state.phone = phoneValue;
-
-                const email = $("inp-email").value.trim();
-                if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-                    alert(STRINGS[state.language]?.alertEmailFormat || STRINGS["en"].alertEmailFormat);
-                    $("inp-email").focus();
-                    return;
-                }
-                state.email = email || null;
-
-                // 2. Определяем данные пользователя и query_id
-                let userName = "Гость";
-                let userId = 0;
-                let queryId = "browser_" + Date.now();  // ВАЖНО: "browser_" а не "demo_"
-
-                // КЛЮЧЕВОЕ: Правильное определение, находимся ли мы в Telegram
-                const isInRealTelegram = tg && tg.initData && tg.initDataUnsafe?.user;
-                if (tg?.initDataUnsafe?.user) {
-                    const user = tg.initDataUnsafe.user;
-                    const firstName = user.first_name || "";
-                    const lastName = user.last_name || "";
-                    userName = lastName ? `${firstName} ${lastName}`.trim() : firstName;
-                    userId = user.id || 0;
-                    
-                    if (tg.initDataUnsafe.query_id) {
-                        queryId = tg.initDataUnsafe.query_id;
-                    }
-                }
-
-                // 3. Формируем данные для отправки
-                const data = {
-                    service: state.service,
-                    request: state.request,
-                    method: state.method,
-                    phone: state.phone,
-                    email: state.email,
-                    time: state.time,
-                    language: state.language,
-                    user_name: userName,
-                    user_id: userId,
-                    source: isInRealTelegram ? "telegram" : "browser",
-                    timestamp: new Date().toISOString()
-                };
-
-                // 4. Блокируем кнопку отправки
-                setSubmitLoading(true);
-
-                try {
-                    // 5. ЛОГИКА ОТПРАВКИ (как в тестовом файле)
-                    if (isInRealTelegram && tg.sendData) {
-                        console.log("Режим: Telegram, используем sendData");
-                        tg.sendData(JSON.stringify(data));
-                        
-                        tg.showAlert("Заявка отправлена!", () => {
-                            setTimeout(() => tg.close(), 1000);
-                        });
-                        
-                        // В Telegram кнопка остается заблокированной - это нормально
-                        return;
-                    }
-
-                    // 6. Режим браузера - используем fetch
-                    console.log("Режим: Браузер, используем fetch API");
-                    
-                    const payload = {
-                        query_id: queryId,
-                        formData: data,
-                        user: { id: userId, first_name: userName },
-                        userAgent: navigator.userAgent,
-                        origin: window.location.origin || 'null'
-                    };
-
-                    const response = await fetch("https://medperfekt.duckdns.org/webapp-callback", {
-                        method: "POST",
-                        headers: { 
-                            "Content-Type": "application/json",
-                            "Accept": "application/json"
-                        },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (response.ok) {
-                        // 7. Успешная отправка в браузере
-                        alert("✅ Заявка успешно отправлена!");
-                        
-                        // Показываем экран успеха
-                        document.getElementById("form").style.display = "none";
-                        document.getElementById("scr-done").style.display = "block";
-                        document.querySelector("#scr-done h1").textContent =
-                            STRINGS[state.language]?.thankYouTitle || STRINGS["en"].thankYouTitle;
-                        document.querySelector("#scr-done p.muted").textContent =
-                            STRINGS[state.language]?.thankYouText || STRINGS["en"].thankYouText;
-                        
-                        // Меняем стиль кнопки
-                        const btnSubmit = $("btn-submit");
-                        if (btnSubmit) {
-                            btnSubmit.textContent = "Успешно отправлено!";
-                            btnSubmit.style.background = "#4CAF50";
-                        }
-                    } else {
-                        throw new Error(`Ошибка сервера: ${response.status}`);
-                    }
-                } catch (error) {
-                    console.error("Полная ошибка:", error);
-                    
-                    // Упрощенное сообщение об ошибке для пользователя
-                    alert(`❌ Ошибка отправки. Проверьте консоль для деталей.`);
-                    
-                    // Разблокируем кнопку при ошибке
-                    setSubmitLoading(false);
+                if (tg.initDataUnsafe.query_id) {
+                    queryId = tg.initDataUnsafe.query_id;
                 }
             }
+
+            // 3. Формируем данные для отправки
+            const data = {
+                service: state.service,
+                request: state.request,
+                method: state.method,
+                phone: state.phone,
+                email: state.email,
+                time: state.time,
+                language: state.language,
+                user_name: userName,
+                user_id: userId,
+                timestamp: new Date().toISOString()
+            };
+
+            // 4. Блокируем кнопку отправки
+            setSubmitLoading(true);
+
+            try {
+                // 5. КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: Правильная проверка для Telegram
+                // tg.sendData существует ТОЛЬКО внутри Telegram Web App
+                if (tg && typeof tg.sendData === 'function') {
+                    console.log("Режим: Telegram (sendData доступен), отправляем через sendData");
+                    
+                    tg.sendData(JSON.stringify(data));
+                    
+                    // Добавляем небольшую задержку перед показом алерта
+                    setTimeout(() => {
+                        if (typeof tg.showAlert === 'function') {
+                            tg.showAlert("✅ Заявка отправлена!", () => {
+                                setTimeout(() => {
+                                    if (typeof tg.close === 'function') {
+                                        tg.close();
+                                    }
+                                }, 1000);
+                            });
+                        } else if (typeof tg.close === 'function') {
+                            setTimeout(() => tg.close(), 1500);
+                        }
+                    }, 100);
+                    
+                    // В Telegram кнопка остается заблокированной - это нормально
+                    return;
+                }
+
+                // 6. Если не в Telegram (браузер) - используем fetch
+                console.log("Режим: Браузер, используем fetch API");
+                
+                const payload = {
+                    query_id: queryId,
+                    formData: data,
+                    user: { id: userId, first_name: userName },
+                    userAgent: navigator.userAgent,
+                    origin: window.location.origin || 'null'
+                };
+
+                const response = await fetch("https://medperfekt.duckdns.org/webapp-callback", {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    // 7. Успешная отправка в браузере
+                    alert("✅ Заявка успешно отправлена!");
+                    
+                    // Показываем экран успеха
+                    document.getElementById("form").style.display = "none";
+                    document.getElementById("scr-done").style.display = "block";
+                    document.querySelector("#scr-done h1").textContent =
+                        STRINGS[state.language]?.thankYouTitle || STRINGS["en"].thankYouTitle;
+                    document.querySelector("#scr-done p.muted").textContent =
+                        STRINGS[state.language]?.thankYouText || STRINGS["en"].thankYouText;
+                    
+                    // Разблокируем кнопку
+                    setSubmitLoading(false);
+                    
+                    // Меняем стиль кнопки
+                    const btnSubmit = $("btn-submit");
+                    if (btnSubmit) {
+                        btnSubmit.textContent = "Успешно отправлено!";
+                        btnSubmit.style.background = "#4CAF50";
+                    }
+                } else {
+                    throw new Error(`Ошибка сервера: ${response.status}`);
+                }
+            } catch (error) {
+                console.error("Полная ошибка:", error);
+                
+                // Упрощенное сообщение об ошибке для пользователя
+                alert(`❌ Ошибка отправки. Проверьте консоль для деталей.`);
+                
+                // Разблокируем кнопку при ошибке
+                setSubmitLoading(false);
+            }
+        }
 
             function closeApp() {
                 if (tg) {

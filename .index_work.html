@@ -1,1343 +1,237 @@
-<!doctype html>
-<html lang="ru">
-    <head>
-        <meta charset="utf-8" />
-        <meta
-            name="viewport"
-            content="width=device-width,initial-scale=1,viewport-fit=cover"
-        />
-        <meta name="robots" content="noindex,nofollow" />
-        <title>Medperfekt — Заявка</title>
-        <script src="https://telegram.org/js/telegram-web-app.js"></script>
-        <style>
-            :root {
-                --bg: #f6fbfc;
-                --card: #fff;
-                --ink: #0e2733;
-                --muted: #6b7a86;
-                --accent: #12c2b0;
-                --accent-ghost: #e6faf7;
-                --ring: #b8efe8;
-                --radius: 18px;
-                --shadow: 0 14px 40px rgba(10, 40, 50, 0.08);
-            }
-            * {
-                box-sizing: border-box;
-            }
-            html,
-            body {
-                margin: 0;
-            }
-            body {
-                min-height: 100dvh;
-                background: var(--bg);
-                color: var(--ink);
-                font-family:
-                    system-ui,
-                    -apple-system,
-                    "Segoe UI",
-                    Inter,
-                    Roboto,
-                    Arial;
-            }
-            .wrap {
-                max-width: 760px;
-                margin: 0 auto;
-                padding: 20px 16px calc(20px + env(safe-area-inset-bottom));
-            }
-
-            /* Шапка */
-            .brand {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                margin: 2px 0 16px;
-                min-height: 56px;
-            }
-            .logo {
-                width: 44px;
-                height: 44px;
-                border-radius: 14px;
-                background: #0bbfaa url("photo.jpg") center/cover no-repeat;
-                box-shadow: 0 6px 18px rgba(11, 191, 170, 0.22);
-            }
-            .brand h2 {
-                margin: 0;
-                font-size: 18px;
-                font-weight: 800;
-                letter-spacing: 0.2px;
-            }
-
-            /* Lang switcher */
-            .lang-switcher {
-                margin-left: auto;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                flex: 0 0 auto;
-            }
-            .lang-btn {
-                border: 1px solid #e3edf0;
-                border-radius: 8px;
-                padding: 6px 10px;
-                background: #fff;
-                cursor: pointer;
-                font-size: 12px;
-                min-width: 42px;
-                text-align: center;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-            .lang-btn.sel {
-                border-color: var(--accent);
-                background-color: var(--accent-ghost);
-                color: var(--ink);
-            }
-
-            /* Карточки и базовые элементы */
-            .card {
-                background: var(--card);
-                border-radius: 22px;
-                box-shadow: var(--shadow);
-                border: 1px solid #edf3f5;
-                padding: 18px;
-            }
-            h1 {
-                font-size: 22px;
-                margin: 2px 0 10px;
-            }
-            .muted {
-                color: var(--muted);
-                font-size: 14px;
-            }
-
-            .grid {
-                display: grid;
-                gap: 14px;
-            }
-            .row {
-                display: flex;
-                gap: 10px;
-                align-items: center;
-                flex-wrap: wrap;
-            }
-            .field {
-                display: grid;
-                gap: 8px;
-            }
-
-            label {
-                display: inline-block;
-                max-width: 100%;
-                word-break: break-word;
-            }
-
-            input,
-            select,
-            textarea {
-                width: 100%;
-                padding: 13px 14px;
-                border: 1px solid #e3edf0;
-                border-radius: 14px;
-                background: #fff;
-                font-size: 16px;
-                line-height: 1.2;
-                outline: none;
-            }
-            input:focus,
-            textarea:focus,
-            select:focus {
-                border-color: var(--ring);
-                box-shadow: 0 0 0 4px rgba(18, 194, 176, 0.12);
-            }
-            ::placeholder {
-                color: #9aa8b2;
-            }
-            textarea {
-                min-height: 110px;
-                resize: vertical;
-            }
-
-            /* Кнопки */
-            .btn {
-                height: 54px;
-                border-radius: 16px;
-                border: 0;
-                background: var(--accent);
-                color: #fff;
-                font-weight: 800;
-                cursor: pointer;
-                padding: 0 20px;
-            }
-            .btn:disabled {
-                opacity: 0.6;
-                cursor: not-allowed;
-            }
-            .btn.ghost {
-                background: var(--accent-ghost);
-                color: #064e47;
-                border: 1px solid #d2f4ee;
-            }
-            .btn.outline {
-                background: #fff;
-                border: 1px solid #e3edf0;
-                color: var(--ink);
-            }
-            .cta {
-                display: flex;
-                gap: 10px;
-                flex-wrap: wrap;
-            }
-
-            .hint {
-                font-size: 12px;
-                color: #7a8b96;
-            }
-
-            /* ========== Контролы способа связи ========== */
-            .method {
-                display: flex;
-                gap: 12px;
-                align-items: stretch;
-            }
-            .method .opt {
-                flex: 1 1 0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 10px;
-                border: 1px solid #e3edf0;
-                border-radius: 14px;
-                padding: 12px;
-                cursor: pointer;
-                background: #fff;
-                color: #5b6b76;
-                min-width: 0;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                text-align: center;
-            }
-            .method .opt b {
-                color: #2b3b45;
-            }
-            .method .opt.sel {
-                border-color: #b9efe7;
-                background: var(--accent-ghost);
-                color: #0e2733;
-            }
-            .method .icon {
-                width: 28px;
-                height: 28px;
-                border-radius: 7px;
-                display: block;
-            }
-
-            /* ========== Сетка услуг ========== */
-            .service-grid {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
-                align-items: stretch;
-            }
-            .service-option {
-                padding: 14px 12px;
-                border: 1px solid #e3edf0;
-                border-radius: 14px;
-                background: #fff;
-                cursor: pointer;
-                font-size: 14px;
-                font-weight: 600;
-                color: #5b6b76;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-                min-height: 54px;
-                text-align: center;
-                overflow: hidden;
-                display: -webkit-box;
-                -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
-                white-space: normal;
-            }
-            .service-option.sel {
-                border-color: #b9efe7;
-                background: var(--accent-ghost);
-                color: #0e2733;
-            }
-
-            /* ========== Варианты времени ========== */
-            .time-options {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 10px;
-            }
-            .time-option {
-                padding: 12px 10px;
-                border: 1px solid #e3edf0;
-                border-radius: 12px;
-                background: #fff;
-                cursor: pointer;
-                text-align: center;
-                font-size: 13px;
-                color: #5b6b76;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-            .time-option.sel {
-                border-color: #b9efe7;
-                background: var(--accent-ghost);
-                color: #0e2733;
-            }
-
-            /* Липкая область действий */
-            .sticky {
-                position: sticky;
-                bottom: 0;
-                margin-top: 10px;
-                background: linear-gradient(
-                    180deg,
-                    rgba(246, 251, 252, 0),
-                    var(--bg) 40%
-                );
-                padding-top: 8px;
-            }
-
-            /* ========== АДАПТИВНОСТЬ ДЛЯ УЗКИХ ЭКРАНОВ ========== */
-            @media (max-width: 480px) {
-                .wrap {
-                    padding: 16px 12px calc(16px + env(safe-area-inset-bottom));
-                }
-                
-                .brand {
-                    gap: 10px;
-                    margin: 0 0 14px;
-                }
-                
-                .logo {
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 12px;
-                }
-                
-                .brand h2 {
-                    font-size: 16px;
-                }
-                
-                .lang-switcher {
-                    gap: 6px;
-                }
-                
-                .lang-btn {
-                    padding: 5px 8px;
-                    font-size: 11px;
-                    min-width: 38px;
-                }
-                
-                .card {
-                    border-radius: 18px;
-                    padding: 16px;
-                }
-                
-                h1 {
-                    font-size: 20px;
-                    margin: 0 0 8px;
-                }
-                
-                .muted {
-                    font-size: 13px;
-                }
-                
-                .grid {
-                    gap: 12px;
-                }
-                
-                /* Услуги в один столбец на узких экранах */
-                .service-grid {
-                    grid-template-columns: 1fr;
-                    gap: 8px;
-                }
-                
-                .service-option {
-                    padding: 12px 10px;
-                    font-size: 13px;
-                    min-height: 50px;
-                    -webkit-line-clamp: 3; /* Разрешаем до 3 строк на узких экранах */
-                }
-                
-                /* Варианты времени в один ряд с переносом текста */
-                .time-options {
-                    grid-template-columns: 1fr;
-                    gap: 8px;
-                }
-                
-                .time-option {
-                    padding: 10px 8px;
-                    font-size: 12px;
-                    white-space: normal; /* Разрешаем перенос текста */
-                    -webkit-line-clamp: 2;
-                    display: -webkit-box;
-                    -webkit-box-orient: vertical;
-                    min-height: 44px;
-                    line-height: 1.3;
-                }
-                
-                /* Кнопки действий на всю ширину */
-                .cta {
-                    flex-direction: column;
-                }
-                
-                .btn {
-                    height: 50px;
-                    border-radius: 14px;
-                    font-size: 15px;
-                }
-                
-                /* Уменьшаем отступы в полях ввода */
-                input, textarea, select {
-                    padding: 11px 12px;
-                    border-radius: 12px;
-                    font-size: 15px;
-                }
-                
-                textarea {
-                    min-height: 100px;
-                }
-                
-                /* Методы связи тоже в колонку на очень узких экранах */
-                @media (max-width: 360px) {
-                    .method {
-                        flex-direction: column;
-                        gap: 8px;
-                    }
-                    
-                    .method .opt {
-                        padding: 10px;
-                    }
-                }
-            }
-
-            /* Дополнительные улучшения для средних экранов */
-            @media (max-width: 600px) and (min-width: 481px) {
-                .service-grid {
-                    grid-template-columns: 1fr;
-                }
-                
-                .time-options {
-                    grid-template-columns: repeat(3, 1fr);
-                }
-                
-                .time-option {
-                    font-size: 12px;
-                    padding: 10px 6px;
-                    white-space: normal;
-                    min-height: 44px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    line-height: 1.2;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <div class="wrap">
-            <div class="brand">
-                <div class="logo"></div>
-                <h2>Medperfekt</h2>
-                <!-- Переключатель языка -->
-                <div class="lang-switcher">
-                    <span id="lang-switcher-label">Language:</span>
-                    <button id="lang-ru" class="lang-btn" data-lang="ru">
-                        RU
-                    </button>
-                    <button id="lang-en" class="lang-btn" data-lang="en">
-                        EN
-                    </button>
-                </div>
-            </div>
-
-            <!-- форма статично, без выдвижения -->
-            <section
-                id="form"
-                class="card"
-                role="form"
-                aria-label="Подать заявку"
-            >
-                <h1 style="margin-bottom: 6px">Подать заявку</h1>
-                <p class="muted" style="margin-top: 0">
-                    Заполните форму для связи с нами
-                </p>
-
-                <div class="grid">
-                    <!-- Услуги -->
-                    <div class="field">
-                        <label>Какая услуга вас интересует?</label>
-                        <div class="service-grid" id="service-options">
-                            <div
-                                class="service-option sel"
-                                data-val="treatment"
-                            >
-                                Лечение/диагностика/реабилитация
-                            </div>
-                            <div class="service-option" data-val="medicines">
-                                Заказ медикаментов
-                            </div>
-                            <div
-                                class="service-option"
-                                data-val="second_opinion"
-                            >
-                                «Второе мнение» немецкого специалиста
-                            </div>
-                            <div class="service-option" data-val="translation">
-                                Перевод документов
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Описание -->
-                    <div class="field">
-                        <label>Опишите ваш запрос</label>
-                        <textarea
-                            id="inp-request"
-                            placeholder="Например: консультация онколога, второе мнение по результатам МРТ..."
-                        ></textarea>
-                        <div class="hint">Минимум 10 символов</div>
-                    </div>
-
-                    <!-- Способ связи -->
-                    <div class="field">
-                        <label>Как удобнее связаться?</label>
-                        <div class="method" id="method-opts">
-                            <div class="opt sel" data-val="WhatsApp">
-                                <svg
-                                    class="icon"
-                                    viewBox="0 0 24 24"
-                                    aria-hidden="true"
-                                >
-                                    <path
-                                        fill="#25D366"
-                                        d="M20.52 3.48A11.86 11.86 0 0 0 12.06 0C5.49 0 .16 5.33.16 11.9c0 2.09.55 4.14 1.59 5.94L0 24l6.33-1.66a11.86 11.86 0 0 0 5.73 1.46h.01c6.57 0 11.9-5.33 11.9-11.9 0-3.17-1.23-6.15-3.45-8.42zM12.07 21.4h-.01a9.5 9.5 0 0 1-4.84-1.33l-.35-.2-3.76.98.99-3.66-.23-.37a9.5 9.5 0 1 1 8.2 4.58zm5.51-7.14c-.3-.15-1.77-.87-2.04-.97-.27-.1-.46-.15-.66.15-.19.3-.76.97-.93 1.17-.17.2-.34.22-.64.07-.3-.15-1.27-.47-2.42-1.5-.9-.8-1.51-1.78-1.69-2.08-.18-.3-.02-.46.13-.61.13-.13.3-.34.44-.51.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.66-1.59-.91-2.18-.24-.58-.48-.5-.66-.51l-.56-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.22 3.08.15.2 2.1 3.2 5.1 4.49.71.31 1.26.5 1.69.63.71.22 1.36.19 1.87.11.57-.08 1.77-.72 2.02-1.41.25-.69.25-1.28.17-1.41-.07-.13-.27-.2-.56-.35z"
-                                    />
-                                </svg>
-                                <b>WhatsApp</b>
-                            </div>
-                            <div class="opt" data-val="Telegram">
-                                <svg
-                                    class="icon"
-                                    viewBox="0 0 24 24"
-                                    aria-hidden="true"
-                                >
-                                    <path
-                                        fill="#0088CC"
-                                        d="M9.999 15.2 9.9 19c.4 0 .6-.2.9-.4l2.2-2 4.5 3.3c.8.5 1.4.2 1.6-.8l2.9-13.5c.3-1.2-.4-1.7-1.2-1.4L2.1 9.1C.9 9.6.9 10.3 1.9 10.6l4.7 1.5L18.6 5c.5-.3 1-.1.6.2L9.999 15.2z"
-                                    />
-                                </svg>
-                                <b>Telegram</b>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Телефон -->
-                    <div class="field">
-                        <label>Телефон</label>
-                        <input
-                            id="inp-phone"
-                            type="tel"
-                            inputmode="tel"
-                            placeholder="+1234567890"
-                            required
-                        />
-                        <div class="hint">
-                            Международный формат с кодом страны
-                        </div>
-                    </div>
-
-                    <!-- Email -->
-                    <div class="field">
-                        <label>Email (необязательно)</label>
-                        <input
-                            id="inp-email"
-                            type="email"
-                            placeholder="name@example.com"
-                        />
-                    </div>
-
-                    <!-- Время связи -->
-                    <div class="field">
-                        <label>Предпочтительное время для связи</label>
-                        <div class="time-options" id="time-options">
-                            <div class="time-option sel" data-val="morning">
-                                До обеда
-                            </div>
-                            <div class="time-option" data-val="afternoon">
-                                После обеда
-                            </div>
-                            <div class="time-option" data-val="evening">
-                                Вечером
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="sticky">
-                    <div class="cta">
-                        <button class="btn ghost" type="button" id="btn-cancel">
-                            Отмена
-                        </button>
-                        <button class="btn" type="button" id="btn-submit">
-                            Подать заявку
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- экран "готово" для демо-режима -->
-            <section
-                id="scr-done"
-                class="card"
-                style="display: none; text-align: center"
-            >
-                <div style="font-size: 56px">✅</div>
-                <h1>Заявка отправлена</h1>
-                <p class="muted">Мы свяжемся с вами в ближайшее время.</p>
-                <div class="row" style="justify-content: center">
-                    <button class="btn outline" type="button" id="btn-home">
-                        На главную
-                    </button>
-                </div>
-            </section>
-        </div>
-
-        <script>
-            const tg = window.Telegram?.WebApp;
-            tg?.ready();
-
-            const $ = (id) => document.getElementById(id);
-
-            // --- ЯЗЫКОВЫЕ РЕСУРСЫ ---
-            const STRINGS = {
-                ru: {
-                    title: "Подать заявку",
-                    subtitle: "Заполните форму для связи с нами",
-                    serviceLabel: "Какая услуга вас интересует?",
-                    service1: "Лечение/диагностика/реабилитация",
-                    service2: "Заказ медикаментов",
-                    service3: "«Второе мнение» немецкого специалиста",
-                    service4: "Перевод документов",
-                    requestLabel: "Опишите ваш запрос",
-                    requestPlaceholder:
-                        "Например: консультация онколога, второе мнение по результатам МРТ...",
-                    hintMinLength: "Минимум 10 символов",
-                    methodLabel: "Как удобнее связаться?",
-                    phoneLabel: "Телефон",
-                    phonePlaceholder: "+1234567890",
-                    phoneHint: "Международный формат с кодом страны",
-                    emailLabel: "Email (необязательно)",
-                    emailPlaceholder: "name@example.com",
-                    timeLabel: "Предпочтительное время для связи",
-                    time1: "До обеда",
-                    time2: "После обеда",
-                    time3: "Вечером",
-                    btnCancel: "Отмена",
-                    btnSubmit: "Подать заявку",
-                    alertReqLength:
-                        "Опишите запрос подробнее (минимум 10 символов).",
-                    alertPhoneFormat:
-                        "Укажите корректный номер телефона (минимум 10 цифр).",
-                    alertEmailFormat: "Похоже, e-mail введён с ошибкой.",
-                    thankYouTitle: "Заявка отправлена",
-                    thankYouText: "Мы свяжемся с вами в ближайшее время.",
-                    btnHome: "На главную",
-                    demoSend:
-                        "Откройте форму из Telegram для реальной отправки.",
-                    botThankYou:
-                        "✅ Заявка отправлена. Спасибо! <b>Medperfekt</b>",
-                    // Тексты для переключателя языка
-                    langSwitcherLabel: "Язык:",
-                    langRu: "RU",
-                    langEn: "EN",
-                },
-                en: {
-                    title: "Submit Request",
-                    subtitle: "Fill out the form to contact us",
-                    serviceLabel: "Which service are you interested in?",
-                    service1: "Treatment/Diagnosis/Rehabilitation",
-                    service2: "Order Medications",
-                    service3: "Second Opinion from a German Specialist",
-                    service4: "Document Translation",
-                    requestLabel: "Describe your request",
-                    requestPlaceholder:
-                        "For example: oncologist consultation, second opinion on MRI results...",
-                    hintMinLength: "Minimum 10 characters",
-                    methodLabel: "How would you prefer to be contacted?",
-                    phoneLabel: "Phone",
-                    phonePlaceholder: "+1234567890",
-                    phoneHint: "International format with country code",
-                    emailLabel: "Email (optional)",
-                    emailPlaceholder: "name@example.com",
-                    timeLabel: "Preferred time for contact",
-                    time1: "Before lunch",
-                    time2: "After lunch",
-                    time3: "In the evening",
-                    btnCancel: "Cancel",
-                    btnSubmit: "Submit Request",
-                    alertReqLength:
-                        "Please describe your request in more detail (minimum 10 characters).",
-                    alertPhoneFormat:
-                        "Please enter a valid phone number (minimum 10 digits).",
-                    alertEmailFormat:
-                        "The email address seems to be entered incorrectly.",
-                    thankYouTitle: "Request Sent",
-                    thankYouText: "We will contact you shortly.",
-                    btnHome: "Home",
-                    demoSend:
-                        "Open the form from Telegram for actual submission.",
-                    botThankYou:
-                        "✅ Request sent. Thank you! <b>Medperfekt</b>",
-                    // Тексты для переключателя языка
-                    langSwitcherLabel: "Language:",
-                    langRu: "RU",
-                    langEn: "EN",
-                },
-            };
-            // --- /ЯЗЫКОВЫЕ РЕСУРСЫ ---
-
-            // --- ОПРЕДЕЛЕНИЕ ЯЗЫКА (Изменено: Telegram/Browser приоритет, дефолт - en) ---
-            function detectLanguage() {
-                // Попробовать получить язык из URL (высший приоритет)
-                const urlParams = new URLSearchParams(location.search);
-                const urlLang = urlParams.get("lang");
-                if (urlLang && STRINGS[urlLang]) {
-                    console.log("Using language from URL:", urlLang);
-                    return urlLang;
-                }
-
-                // Попробовать получить язык из Telegram (второй приоритет)
-                const tgLang = tg?.initDataUnsafe?.user?.language_code;
-                if (tgLang && STRINGS[tgLang]) {
-                    console.log("Using language from Telegram:", tgLang);
-                    return tgLang;
-                }
-                if (tgLang) {
-                    const shortCode = tgLang
-                        .split("_")[0]
-                        .split("-")[0]
-                        .toLowerCase();
-                    if (STRINGS[shortCode]) {
-                        console.log(
-                            "Using language from Telegram (short code):",
-                            shortCode,
-                        );
-                        return shortCode;
-                    }
-                }
-
-                // Попробовать получить язык из браузера (третий приоритет)
-                const browserLang =
-                    navigator.language || navigator.languages[0];
-                if (browserLang) {
-                    const shortCode = browserLang
-                        .split("_")[0]
-                        .split("-")[0]
-                        .toLowerCase();
-                    if (STRINGS[shortCode]) {
-                        console.log("Using language from browser:", shortCode);
-                        return shortCode;
-                    }
-                }
-
-                // Дефолтный язык - английский
-                console.log("Using default language: en");
-                return "en";
-            }
-
-            // Функция для сохранения выбранного языка
-            function saveLanguage(langCode) {
-                if (STRINGS[langCode]) {
-                    localStorage.setItem("mp_lang", langCode);
-                    console.log("Saved language to localStorage:", langCode);
-                }
-            }
-            // --- /ОПРЕДЕЛЕНИЕ ЯЗЫКА ---
-
-            // --- ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ---
-            function updateUI(langCode) {
-                const strings = STRINGS[langCode] || STRINGS["en"]; // fallback на английский, если язык не найден
-                const $ = (id) => document.getElementById(id);
-
-                // Обновить заголовки и тексты в секции формы
-                const titleEl = document.querySelector("#form h1");
-                if (titleEl) titleEl.textContent = strings.title;
-
-                const subtitleEl = document.querySelector("#form p.muted");
-                if (subtitleEl) subtitleEl.textContent = strings.subtitle;
-
-                // Обновить метки полей
-                const labels = document.querySelectorAll("label");
-                labels.forEach((label) => {
-                    if (
-                        label.textContent.trim() ===
-                            "Какая услуга вас интересует?" ||
-                        label.textContent.trim() ===
-                            "Which service are you interested in?"
-                    ) {
-                        label.textContent = strings.serviceLabel;
-                    } else if (
-                        label.textContent.trim() === "Опишите ваш запрос" ||
-                        label.textContent.trim() === "Describe your request"
-                    ) {
-                        label.textContent = strings.requestLabel;
-                    } else if (
-                        label.textContent.trim() === "Как удобнее связаться?" ||
-                        label.textContent.trim() ===
-                            "How would you prefer to be contacted?"
-                    ) {
-                        label.textContent = strings.methodLabel;
-                    } else if (
-                        label.textContent.trim() === "Телефон" ||
-                        label.textContent.trim() === "Phone"
-                    ) {
-                        label.textContent = strings.phoneLabel;
-                    } else if (
-                        label.textContent.trim() === "Email (необязательно)" ||
-                        label.textContent.trim() === "Email (optional)"
-                    ) {
-                        label.textContent = strings.emailLabel;
-                    } else if (
-                        label.textContent.trim() ===
-                            "Предпочтительное время для связи" ||
-                        label.textContent.trim() ===
-                            "Preferred time for contact"
-                    ) {
-                        label.textContent = strings.timeLabel;
-                    }
-                });
-
-                // Обновить тексты внутри карточных опций (услуги)
-                const serviceOptions = document.querySelectorAll(
-                    "#service-options .service-option",
-                );
-                serviceOptions.forEach((opt) => {
-                    if (
-                        opt.textContent.trim() ===
-                            "Лечение/диагностика/реабилитация" ||
-                        opt.textContent.trim() ===
-                            "Treatment/Diagnosis/Rehabilitation"
-                    ) {
-                        opt.textContent = strings.service1;
-                    } else if (
-                        opt.textContent.trim() === "Заказ медикаментов" ||
-                        opt.textContent.trim() === "Order Medications"
-                    ) {
-                        opt.textContent = strings.service2;
-                    } else if (
-                        opt.textContent.trim() ===
-                            "«Второе мнение» немецкого специалиста" ||
-                        opt.textContent.trim() ===
-                            "Second Opinion from a German Specialist"
-                    ) {
-                        opt.textContent = strings.service3;
-                    } else if (
-                        opt.textContent.trim() === "Перевод документов" ||
-                        opt.textContent.trim() === "Document Translation"
-                    ) {
-                        opt.textContent = strings.service4;
-                    }
-                });
-
-                // Обновить placeholder текста
-                const requestTextarea = $("inp-request");
-                if (requestTextarea)
-                    requestTextarea.placeholder = strings.requestPlaceholder;
-
-                // Обновить подсказку длины
-                const hintMinLength = document.querySelector(".hint"); // Предполагается, что первая .hint - это для запроса
-                if (hintMinLength)
-                    hintMinLength.textContent = strings.hintMinLength;
-
-                // Обновить placeholder и hint телефона
-                const phoneInput = $("inp-phone");
-                if (phoneInput) {
-                    phoneInput.placeholder = strings.phonePlaceholder;
-                    const phoneHint = phoneInput.nextElementSibling; // Подсказка сразу после инпута
-                    if (phoneHint && phoneHint.classList.contains("hint")) {
-                        phoneHint.textContent = strings.phoneHint;
-                    }
-                }
-
-                // Обновить placeholder email
-                const emailInput = $("inp-email");
-                if (emailInput)
-                    emailInput.placeholder = strings.emailPlaceholder;
-
-                // Обновить тексты времени связи
-                const timeOptions = document.querySelectorAll(
-                    "#time-options .time-option",
-                );
-                timeOptions[0].textContent = strings.time1;
-                timeOptions[1].textContent = strings.time2;
-                timeOptions[2].textContent = strings.time3;
-
-                // Обновить тексты кнопок
-                const btnCancel = $("btn-cancel");
-                if (btnCancel) btnCancel.textContent = strings.btnCancel;
-
-                const btnSubmit = $("btn-submit");
-                if (btnSubmit) btnSubmit.textContent = strings.btnSubmit;
-
-                // Обновить экран "готово"
-                const doneTitle = document.querySelector("#scr-done h1");
-                if (doneTitle) doneTitle.textContent = strings.thankYouTitle;
-
-                const doneText = document.querySelector("#scr-done p.muted");
-                if (doneText) doneText.textContent = strings.thankYouText;
-
-                const btnHome = $("btn-home");
-                if (btnHome) btnHome.textContent = strings.btnHome;
-
-                // Обновить переключатель языка (если он есть)
-                const langSwitcherLabel = document.getElementById(
-                    "lang-switcher-label",
-                );
-                if (langSwitcherLabel)
-                    langSwitcherLabel.textContent = strings.langSwitcherLabel;
-                const langRuBtn = document.getElementById("lang-ru");
-                if (langRuBtn) langRuBtn.textContent = strings.langRu;
-                const langEnBtn = document.getElementById("lang-en");
-                if (langEnBtn) langEnBtn.textContent = strings.langEn;
-
-                // Обновить активный класс кнопок переключателя
-                const langButtons = document.querySelectorAll(".lang-btn");
-                langButtons.forEach((btn) => {
-                    if (btn.getAttribute("data-lang") === langCode) {
-                        btn.classList.add("sel"); // Добавляем класс 'sel' для выбранного языка
-                    } else {
-                        btn.classList.remove("sel"); // Убираем класс 'sel' с других
-                    }
-                });
-            }
-            // --- /ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ---
-
-            // --- ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА (Изменено: всегда обновляет код страны) ---
-            function switchLanguage(langCode) {
-                if (STRINGS[langCode]) {
-                    state.language = langCode; // Обновляем язык в состоянии
-                    saveLanguage(langCode); // Сохраняем выбор в localStorage
-                    updateUI(langCode); // Обновляем интерфейс
-                    console.log("Language switched via button to:", langCode);
-
-                    // Обновляем код страны телефона при переключении языка, даже если поле не пустое
-                    const phoneInput = $("inp-phone");
-                    if (phoneInput) {
-                        const currentNumber = phoneInput.value.replace(
-                            /^\+\d{1,4}\s*/,
-                            "",
-                        ); // Сохраняем введённый номер без кода
-                        const newCode = guessCountryCodeImproved(); // Получаем новый код на основе state.language
-                        phoneInput.value = newCode + " " + currentNumber; // Подставляем новый код и старый номер
-                        try {
-                            phoneInput.setSelectionRange(
-                                phoneInput.value.length,
-                                phoneInput.value.length,
-                            );
-                        } catch {} // Курсор в конец
-                    }
-                }
-            }
-            // --- /ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА ---
-
-            // Состояние (добавлено поле language)
-            const state = {
-                service: "treatment",
-                request: "",
-                method: "WhatsApp",
-                phone: "",
-                email: null,
-                time: "morning",
-                language: "" /* Будет установлено ниже */,
-            };
-
-            // Выборы (без изменений)
-            function bindSelectable(containerId, itemClass, key) {
-                const box = $(containerId);
-                for (const el of box.querySelectorAll("." + itemClass)) {
-                    el.onclick = () => {
-                        for (const n of box.children) n.classList.remove("sel");
-                        el.classList.add("sel");
-                        state[key] = el.getAttribute("data-val");
-                    };
-                }
-            }
-
-            // --- Улучшенное автоопределение кода страны (Изменено: учитывает state.language, дефолт - en) ---
-            const CC_BY_REGION = {
-                RU: "+7",
-                KZ: "+7",
-                US: "+1",
-                CA: "+1",
-                CZ: "+420",
-                SK: "+421",
-                DE: "+49",
-                TR: "+90",
-                UA: "+380",
-                PL: "+48",
-                FR: "+33",
-                ES: "+34",
-                IT: "+39",
-                GB: "+44",
-                AE: "+971",
-                CN: "+86",
-                JP: "+81",
-            };
-            const CC_BY_TZ_PREFIX = {
-                "Europe/Prague": "+420",
-                "Europe/Bratislava": "+421",
-                "Europe/Berlin": "+49",
-                "Europe/Moscow": "+7",
-                "Asia/Almaty": "+7",
-                "America/": "+1", // любой TZ в Америке
-            };
-
-            function urlCountryCode() {
-                const m = new URLSearchParams(location.search).get("cc");
-                return m && /^\+\d{1,4}$/.test(m) ? m : null;
-            }
-            function savedCountryCode() {
-                const v = localStorage.getItem("mp_cc");
-                return v && /^\+\d{1,4}$/.test(v) ? v : null;
-            }
-            function saveCountryCode(cc) {
-                if (/^\+\d{1,4}$/.test(cc)) localStorage.setItem("mp_cc", cc);
-            }
-
-            function languageRegion() {
-                const langs = [
-                    tg?.initDataUnsafe?.user?.language_code,
-                    navigator.language,
-                    ...(navigator.languages || []),
-                ].filter(Boolean);
-                for (const l of langs) {
-                    try {
-                        // Пытаемся достать регион из локали
-                        const loc = new Intl.Locale(l);
-                        if (loc.region && CC_BY_REGION[loc.region])
-                            return loc.region;
-                    } catch (_) {
-                        // Fallback: парсим суффикс -RU/-CZ/...
-                        const m = String(l).match(/-([A-Z]{2})$/i);
-                        if (m) return m[1].toUpperCase();
-                    }
-                }
-                return null;
-            }
-
-            function tzToCode() {
-                const tz =
-                    Intl.DateTimeFormat().resolvedOptions().timeZone || "";
-                for (const key of Object.keys(CC_BY_TZ_PREFIX)) {
-                    if (key.endsWith("/") ? tz.startsWith(key) : tz === key) {
-                        return CC_BY_TZ_PREFIX[key];
-                    }
-                }
-                return null;
-            }
-
-            function guessCountryCodeImproved() {
-                // 0) Если явный UI-язык уже известен — отдаём код на его основе (самый высокий приоритет)
-                const uiLang = (state.language || "")
-                    .split("_")[0]
-                    .split("-")[0]
-                    .toLowerCase();
-                if (uiLang === "en") return "+1";
-                if (uiLang === "ru") return "+7";
-                if (uiLang === "cs") return "+420";
-                if (uiLang === "de") return "+49";
-                if (uiLang === "tr") return "+90";
-                if (uiLang === "uk" || uiLang === "ua") return "+380";
-
-                // 1) Принудительно из URL (параметр cc) — если указан явно админом/ссылкой
-                const forcedUrl = urlCountryCode();
-                if (forcedUrl) {
-                    console.log("Using forced code from URL:", forcedUrl);
-                    return forcedUrl;
-                }
-
-                // 2) Сохранённый выбор пользователя (localStorage)
-                const saved = savedCountryCode();
-                if (saved) {
-                    console.log(
-                        "Using saved country code from localStorage:",
-                        saved,
-                    );
-                    return saved;
-                }
-
-                // 3) Регион из языка (Telegram/Browser)
-                const region = languageRegion();
-                if (region && CC_BY_REGION[region]) {
-                    console.log(
-                        "Using code based on region:",
-                        region,
-                        CC_BY_REGION[region],
-                    );
-                    return CC_BY_REGION[region];
-                }
-
-                // 4) Таймзона
-                const byTz = tzToCode();
-                if (byTz) {
-                    console.log("Using code based on timezone:", byTz);
-                    return byTz;
-                }
-
-                // 5) Слабые эвристики на основе Telegram/Browser language
-                const lang = (
-                    tg?.initDataUnsafe?.user?.language_code ||
-                    navigator.language ||
-                    "en"
-                ).toLowerCase();
-                if (lang.startsWith("ru") || lang.startsWith("kk")) {
-                    console.log(
-                        "Using +7 based on Telegram/Browser language (ru/kk)",
-                    );
-                    return "+7";
-                }
-                if (lang.startsWith("cs")) return "+420";
-                if (lang.startsWith("de")) return "+49";
-                if (lang.startsWith("tr")) return "+90";
-                if (lang.startsWith("uk") || lang.startsWith("ua"))
-                    return "+380";
-                if (lang.startsWith("en")) {
-                    console.log(
-                        "Using +1 based on Telegram/Browser language (en)",
-                    );
-                    return "+1";
-                }
-
-                // 6) Дефолт
-                console.log("Using default country code +420");
-                return "+420";
-            }
-
-            function prefillPhoneImproved() {
-                const el = $("inp-phone");
-                if (!el) return;
-
-                // Только когда пусто — подставляем
-                if (!el.value.trim()) {
-                    const cc = guessCountryCodeImproved(); // <-- Теперь учитывает state.language
-                    el.value = cc + " ";
-                    try {
-                        el.setSelectionRange(el.value.length, el.value.length);
-                    } catch {}
-
-                    // Если пользователь руками поменял код — запомним
-                    const remember = () => {
-                        const m = el.value.trim().match(/^\+\d{1,4}/);
-                        if (m) saveCountryCode(m[0]);
-                    };
-                    el.addEventListener("change", remember);
-                    el.addEventListener("blur", remember);
-                }
-            }
-            // -----------------------------------------------
-
-            // Прокрутка инпутов к центру при фокусе (без изменений)
-            function ensureVisibleOnFocus(sel) {
-                for (const el of document.querySelectorAll(sel)) {
-                    el.addEventListener("focus", () => {
-                        el.scrollIntoView({
-                            behavior: "smooth",
-                            block: "center",
-                            inline: "nearest",
-                        });
-                    });
-                }
-            }
-
-            // Функция для ограничения ввода только цифр и +
-            function restrictPhoneInput(event) {
-                // Разрешаем служебные клавиши (backspace, delete, tab и т.д.)
-                if (event.key === 'Backspace' || event.key === 'Delete' || 
-                    event.key === 'Tab' || event.key === 'Escape' || event.key === 'Enter' ||
-                    event.key === 'ArrowLeft' || event.key === 'ArrowRight' || 
-                    event.key === 'ArrowUp' || event.key === 'ArrowDown' ||
-                    (event.ctrlKey && (event.key === 'a' || event.key === 'c' || event.key === 'v' || event.key === 'x'))) {
-                    return;
-                }
-                
-                // Разрешаем только цифры и символ +
-                if (!/[0-9+]/.test(event.key)) {
-                    event.preventDefault();
-                }
-                
-                // Ограничиваем ввод + только в начале
-                const input = event.target;
-                if (event.key === '+' && input.selectionStart > 0) {
-                    event.preventDefault();
-                }
-            }
-
-            // Функция для очистки вставленного текста
-            function cleanPastedPhone(event) {
-                event.preventDefault();
-                const pastedData = (event.clipboardData || window.clipboardData).getData('text');
-                
-                // Оставляем только цифры и первый +
-                let cleaned = pastedData.replace(/[^\d+]/g, '');
-                
-                // Если есть +, оставляем только первый
-                if (cleaned.includes('+')) {
-                    const parts = cleaned.split('+');
-                    cleaned = '+' + parts.slice(1).join('');
-                }
-                
-                // Вставляем очищенный текст
-                const start = event.target.selectionStart;
-                const end = event.target.selectionEnd;
-                const value = event.target.value;
-                
-                event.target.value = value.substring(0, start) + cleaned + value.substring(end);
-                event.target.setSelectionRange(start + cleaned.length, start + cleaned.length);
-            }
-
-            // Упрощенная валидация телефона - проверяем только минимальную длину
-            function validatePhone(phone) {
-                // Убираем все нецифровые символы кроме плюса в начале
-                const cleaned = phone.replace(/[^\d+]/g, '');
-                // Проверяем что номер начинается с + и содержит минимум 10 цифр
-                return cleaned.startsWith('+') && cleaned.replace('+', '').length >= 10;
-            }
-
-            // Валидация + отправка (изменено: добавлено поле language в payload)
-            function submitApp() {
-                const req = $("inp-request").value.trim();
-                if (req.length < 10) {
-                    alert(
-                        STRINGS[state.language]?.alertReqLength ||
-                            STRINGS["en"].alertReqLength,
-                    ); // Используем строку на текущем языке, fallback на en
-                    $("inp-request").focus();
-                    return;
-                }
-                state.request = req;
-
-                const phoneEl = $("inp-phone");
-                const phoneValue = phoneEl.value.trim();
-                
-                // Упрощенная валидация телефона
-                if (!validatePhone(phoneValue)) {
-                    alert(
-                        STRINGS[state.language]?.alertPhoneFormat ||
-                            STRINGS["en"].alertPhoneFormat,
-                    ); // Используем строку на текущем языке, fallback на en
-                    phoneEl.focus();
-                    return;
-                }
-                state.phone = phoneValue;
-
-                const email = $("inp-email").value.trim();
-                if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-                    alert(
-                        STRINGS[state.language]?.alertEmailFormat ||
-                            STRINGS["en"].alertEmailFormat,
-                    ); // Используем строку на текущем языке, fallback на en
-                    $("inp-email").focus();
-                    return;
-                }
-                state.email = email || null;
-
-                const payload = {
-                    service: state.service,
-                    request: state.request,
-                    method: state.method,
-                    phone: state.phone,
-                    email: state.email,
-                    time: state.time,
-                    language: state.language, // <-- Добавляем язык в payload (язык интерфейса на момент отправки)
-                    ts: Date.now(),
-                };
-
-                if (tg) {
-                    tg.sendData(JSON.stringify(payload));
-                    alert(
-                        STRINGS[state.language]?.botThankYou ||
-                            STRINGS["en"].botThankYou,
-                    ); // fallback на en
-                    tg.close();
-                } else {
-                    console.log("Demo payload:", payload);
-                    alert(
-                        STRINGS[state.language]?.demoSend ||
-                            STRINGS["en"].demoSend,
-                    ); // fallback на en
-                    document.getElementById("form").style.display = "none";
-                    document.getElementById("scr-done").style.display = "block";
-                    // Также обновляем текст на экране "готово" на случай демонстрации
-                    document.querySelector("#scr-done h1").textContent =
-                        STRINGS[state.language]?.thankYouTitle ||
-                        STRINGS["en"].thankYouTitle; // fallback на en
-                    document.querySelector("#scr-done p.muted").textContent =
-                        STRINGS[state.language]?.thankYouText ||
-                        STRINGS["en"].thankYouText; // fallback на en
-                }
-            }
-
-            function closeApp() {
-                if (tg) {
-                    tg.close();
-                } else {
-                    document.getElementById("form").style.display = "none";
-                    document.getElementById("scr-done").style.display = "block";
-                }
-            }
-
-            // Инициализация (изменено: определяем язык и обновляем UI)
-            (function init() {
-                // 1. Определяем язык (Telegram/Browser приоритет над localStorage, fallback на en)
-                state.language = detectLanguage(); // Сохраняем определенный язык в state
-
-                // 2. Обновляем интерфейс на основе определенного языка
-                updateUI(state.language);
-
-                // 3. Привязываем выборы (без изменений)
-                bindSelectable("service-options", "service-option", "service");
-                bindSelectable("method-opts", "opt", "method");
-                bindSelectable("time-options", "time-option", "time");
-
-                // 4. Привязываем кнопки (без изменений)
-                $("btn-submit").onclick = submitApp;
-                $("btn-cancel").onclick = closeApp;
-                $("btn-home").onclick = () => {
-                    location.reload();
-                };
-
-                // 5. Добавляем обработчики для переключателя языка
-                document.getElementById("lang-ru").onclick = () =>
-                    switchLanguage("ru");
-                document.getElementById("lang-en").onclick = () =>
-                    switchLanguage("en");
-
-                // 6. Добавляем обработчики для ограничения ввода в поле телефона
-                const phoneInput = $("inp-phone");
-                if (phoneInput) {
-                    phoneInput.addEventListener('keydown', restrictPhoneInput);
-                    phoneInput.addEventListener('paste', cleanPastedPhone);
-                }
-
-                // 7. Другие инициализации (без изменений)
-                ensureVisibleOnFocus("input, textarea, select");
-                prefillPhoneImproved(); // <— НОВАЯ версия, учитывает state.language
-
-                console.log(
-                    "Initialization complete. Current language (from Telegram/Browser/storage/detect):",
-                    state.language,
-                );
-            })();
-        </script>
-    </body>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Test Mini App</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; text-align: center; }
+    button { 
+      padding: 15px 30px; 
+      font-size: 18px; 
+      background: #12c2b0; 
+      color: white; 
+      border: none; 
+      border-radius: 12px; 
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover { background: #0fa89c; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+    .debug { margin-top: 20px; padding: 10px; background: #f5f5f5; border-radius: 8px; text-align: left; display: none; }
+  </style>
+</head>
+<body>
+
+  <h2>Тестовая заявка Medperfekt</h2>
+  <p>Нажми кнопку — заявка улетит в админку</p>
+
+  <button id="send">
+    Отправить заявку
+  </button>
+
+  <div style="margin-top: 20px;">
+    <label>
+      <input type="checkbox" id="debugMode">
+      Показать отладку
+    </label>
+  </div>
+
+  <div id="debugInfo" class="debug"></div>
+
+  <script>
+    const tg = window.Telegram?.WebApp;
+    const isInTelegram = tg && tg.initData;
+    
+    // Инициализация Telegram WebApp
+    if (tg) {
+      tg.ready();
+      tg.expand();
+    }
+
+    // Отладочная информация
+    function logDebug(message) {
+      const debugDiv = document.getElementById('debugInfo');
+      if (debugDiv) {
+        debugDiv.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
+      }
+      console.log(message);
+    }
+
+    // Показать/скрыть отладку
+    document.getElementById('debugMode').onchange = function(e) {
+      document.getElementById('debugInfo').style.display = e.target.checked ? 'block' : 'none';
+    };
+
+    document.getElementById("send").onclick = async () => {
+      const button = document.getElementById("send");
+      button.disabled = true;
+      button.textContent = "Отправка...";
+      
+      logDebug("=== Начало отправки ===");
+
+      try {
+        // Собираем данные
+        let userName = "Гость";
+        let userId = 0;
+        let queryId = "browser_" + Date.now();
+
+        if (tg?.initDataUnsafe?.user) {
+          const u = tg.initDataUnsafe.user;
+          userName = [u.first_name, u.last_name].filter(Boolean).join(" ") || "Без имени";
+          userId = u.id;
+          if (tg.initDataUnsafe.query_id) {
+            queryId = tg.initDataUnsafe.query_id;
+          }
+        }
+
+        const data = {
+          service: "Тест",
+          request: "Тестовая заявка из Mini App",
+          method: "Telegram",
+          phone: "+79999999999",
+          time: "any",
+          language: "ru",
+          user_name: userName,
+          user_id: userId,
+          source: isInTelegram ? "telegram" : "browser",
+          timestamp: new Date().toISOString()
+        };
+
+        logDebug(`Режим: ${isInTelegram ? 'Telegram' : 'Браузер'}`);
+        logDebug(`Данные: ${JSON.stringify(data, null, 2)}`);
+
+        // 1. Если в Telegram - используем sendData
+        if (tg?.sendData) {
+          logDebug("Используем tg.sendData()");
+          tg.sendData(JSON.stringify(data));
+          
+          tg.showAlert("Заявка отправлена через Telegram!", () => {
+            setTimeout(() => tg.close(), 1000);
+          });
+          
+          button.textContent = "Отправлено!";
+          logDebug("Заявка отправлена через sendData");
+          return;
+        }
+
+        // 2. Если в браузере - используем fetch с обходом CORS
+        logDebug("Режим браузера, используем fetch API");
+        
+        // Вариант A: Прямой запрос (если сервер поддерживает CORS)
+        let url = "https://medperfekt.duckdns.org/webapp-callback";
+        
+        // Вариант B: Через прокси для обхода CORS (раскомментируйте если вариант A не работает)
+        // const proxyUrl = "https://corsproxy.io/?"; // Публичный CORS прокси
+        // url = proxyUrl + encodeURIComponent(url);
+        
+        logDebug(`Отправляем на: ${url}`);
+
+        const payload = {
+          query_id: queryId,
+          formData: data,
+          user: tg?.initDataUnsafe?.user || { id: userId, first_name: userName },
+          initData: tg?.initData,
+          userAgent: navigator.userAgent
+        };
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 сек таймаут
+
+        try {
+          const res = await fetch(url, {
+            method: "POST",
+            mode: 'cors', // или 'no-cors', но тогда не получим ответ
+            headers: { 
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            },
+            body: JSON.stringify(payload),
+            signal: controller.signal
+          });
+
+          clearTimeout(timeoutId);
+
+          logDebug(`Статус ответа: ${res.status} ${res.statusText}`);
+
+          if (res.ok) {
+            const result = await res.json();
+            logDebug(`Ответ сервера: ${JSON.stringify(result)}`);
+            alert("✅ Заявка успешно отправлена!");
+            button.textContent = "Успешно отправлено!";
+            button.style.background = "#4CAF50";
+          } else {
+            const errorText = await res.text();
+            logDebug(`Ошибка сервера: ${res.status} - ${errorText}`);
+            throw new Error(`Сервер вернул ошибку ${res.status}`);
+          }
+        } catch (fetchError) {
+          if (fetchError.name === 'AbortError') {
+            throw new Error("Таймаут запроса (10 сек)");
+          }
+          throw fetchError;
+        }
+
+      } catch (error) {
+        logDebug(`Ошибка: ${error.message}`);
+        console.error("Полная ошибка:", error);
+        
+        // Показываем пользователю понятное сообщение
+        let errorMessage = error.message;
+        if (error.message.includes('CORS') || error.message.includes('NetworkError')) {
+          errorMessage = "Проблема с соединением. Проверьте CORS настройки сервера.";
+        } else if (error.message.includes('таймаут')) {
+          errorMessage = "Сервер не отвечает. Попробуйте позже.";
+        }
+        
+        alert(`❌ Ошибка отправки: ${errorMessage}\n\nДля разработчиков: проверьте консоль.`);
+        
+        button.disabled = false;
+        button.textContent = "Попробовать снова";
+      } finally {
+        logDebug("=== Завершение отправки ===");
+      }
+    };
+
+    // Добавляем глобальную функцию для тестирования
+    window.testDirectRequest = async function() {
+      console.log("Тестовый запрос напрямую...");
+      const testData = {
+        query_id: "test_" + Date.now(),
+        formData: {
+          service: "Тест из консоли",
+          request: "Ручной тест",
+          method: "Browser Console",
+          phone: "+79998887766",
+          time: "now",
+          language: "ru",
+          user_name: "Консольный тест",
+          user_id: 999999
+        },
+        user: {
+          id: 999999,
+          first_name: "Консольный тест"
+        }
+      };
+      
+      try {
+        const res = await fetch("https://medperfekt.duckdns.org/webapp-callback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(testData)
+        });
+        console.log("Результат:", await res.text());
+      } catch (e) {
+        console.error("Ошибка:", e);
+      }
+    };
+
+    // Информация для отладки
+    logDebug(`В Telegram: ${isInTelegram ? 'Да' : 'Нет'}`);
+    logDebug(`User Agent: ${navigator.userAgent}`);
+    logDebug(`TG WebApp доступен: ${!!tg}`);
+    logDebug(`TG.sendData доступен: ${!!tg?.sendData}`);
+
+  </script>
+</body>
 </html>
