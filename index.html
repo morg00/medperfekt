@@ -1373,9 +1373,11 @@
                 if (!hasTg || platform === 'web' || !hasInitData) {
                     mode = "browser";
                 } else if (hasQueryId && !hasSendData) {
-                    mode = "menu_button"; // Синяя кнопка
+                    // mode = "menu_button"; // Синяя кнопка
+                    mode = "reply_keyboard";
                 } else if (hasSendData && hasInitData) {
-                    mode = "reply_keyboard"; // Кнопка в чате
+                    // mode = "reply_keyboard"; // Кнопка в чате
+                    mode = "menu_button"; // Синяя кнопка
                 }
 
                 // Debug логирование
