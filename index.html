@@ -1003,21 +1003,11 @@
                     saveLanguage(langCode);
                     updateUI(langCode);
                     console.log("Language switched via button to:", langCode);
-
+                    // Упрощенное обновление кода страны
                     const phoneInput = $("inp-phone");
-                    if (phoneInput) {
-                        const currentNumber = phoneInput.value.replace(
-                            /^\+\d{1,4}\s*/,
-                            "",
-                        );
-                        const newCode = guessCountryCodeImproved();
-                        phoneInput.value = newCode + " " + currentNumber;
-                        try {
-                            phoneInput.setSelectionRange(
-                                phoneInput.value.length,
-                                phoneInput.value.length,
-                            );
-                        } catch {}
+                    if (phoneInput && !phoneInput.value.trim()) {
+                        const defaultCode = langCode === "ru" ? "+7" : "+1";
+                        phoneInput.value = defaultCode + " ";
                     }
                 }
             }
@@ -1323,12 +1313,10 @@
             }
 
             async function submitApp() {
+                // 1. Собираем данные формы
                 const req = $("inp-request").value.trim();
                 if (req.length < 10) {
-                    alert(
-                        STRINGS[state.language]?.alertReqLength ||
-                            STRINGS["en"].alertReqLength,
-                    );
+                    alert(STRINGS[state.language]?.alertReqLength || STRINGS["en"].alertReqLength);
                     $("inp-request").focus();
                     return;
                 }
@@ -1338,10 +1326,7 @@
                 const phoneValue = phoneEl.value.trim();
                 
                 if (!validatePhone(phoneValue)) {
-                    alert(
-                        STRINGS[state.language]?.alertPhoneFormat ||
-                            STRINGS["en"].alertPhoneFormat,
-                    );
+                    alert(STRINGS[state.language]?.alertPhoneFormat || STRINGS["en"].alertPhoneFormat);
                     phoneEl.focus();
                     return;
                 }
@@ -1349,34 +1334,33 @@
 
                 const email = $("inp-email").value.trim();
                 if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-                    alert(
-                        STRINGS[state.language]?.alertEmailFormat ||
-                            STRINGS["en"].alertEmailFormat,
-                    );
+                    alert(STRINGS[state.language]?.alertEmailFormat || STRINGS["en"].alertEmailFormat);
                     $("inp-email").focus();
                     return;
                 }
                 state.email = email || null;
 
-                // Определяем данные пользователя
+                // 2. Определяем данные пользователя и query_id
                 let userName = "Гость";
                 let userId = 0;
-                let queryId = `demo_${Date.now()}`;
+                let queryId = "browser_" + Date.now();  // ВАЖНО: "browser_" а не "demo_"
 
-                if (tg && tg.initDataUnsafe) {
+                // КЛЮЧЕВОЕ: Правильное определение, находимся ли мы в Telegram
+                const isInRealTelegram = tg && tg.initData && tg.initDataUnsafe?.user;
+                if (tg?.initDataUnsafe?.user) {
                     const user = tg.initDataUnsafe.user;
-                    if (user) {
-                        const firstName = user.first_name || "";
-                        const lastName = user.last_name || "";
-                        userName = lastName ? `${firstName} ${lastName}`.trim() : firstName;
-                        userId = user.id || 0;
-                    }
+                    const firstName = user.first_name || "";
+                    const lastName = user.last_name || "";
+                    userName = lastName ? `${firstName} ${lastName}`.trim() : firstName;
+                    userId = user.id || 0;
+                    
                     if (tg.initDataUnsafe.query_id) {
                         queryId = tg.initDataUnsafe.query_id;
                     }
                 }
 
-                const formData = {
+                // 3. Формируем данные для отправки
+                const data = {
                     service: state.service,
                     request: state.request,
                     method: state.method,
@@ -1384,60 +1368,78 @@
                     email: state.email,
                     time: state.time,
                     language: state.language,
-                    ts: Date.now(),
                     user_name: userName,
                     user_id: userId,
+                    source: isInRealTelegram ? "telegram" : "browser",
+                    timestamp: new Date().toISOString()
                 };
 
-                // Блокируем кнопки и показываем состояние загрузки
+                // 4. Блокируем кнопку отправки
                 setSubmitLoading(true);
 
                 try {
-                    // 1. Обычная кнопка в чате — используем sendData
-                    if (tg && typeof tg.sendData === 'function') {
-                        tg.sendData(JSON.stringify(formData));
-                        // Бот получит web_app_data, ничего больше не делаем
+                    // 5. ЛОГИКА ОТПРАВКИ (как в тестовом файле)
+                    if (isInRealTelegram && tg.sendData) {
+                        console.log("Режим: Telegram, используем sendData");
+                        tg.sendData(JSON.stringify(data));
+                        
+                        tg.showAlert("Заявка отправлена!", () => {
+                            setTimeout(() => tg.close(), 1000);
+                        });
+                        
+                        // В Telegram кнопка остается заблокированной - это нормально
                         return;
                     }
 
-                    // 2. Синяя кнопка (Menu Button) или браузер — POST на сервер
+                    // 6. Режим браузера - используем fetch
+                    console.log("Режим: Браузер, используем fetch API");
+                    
+                    const payload = {
+                        query_id: queryId,
+                        formData: data,
+                        user: { id: userId, first_name: userName },
+                        userAgent: navigator.userAgent,
+                        origin: window.location.origin || 'null'
+                    };
+
                     const response = await fetch("https://medperfekt.duckdns.org/webapp-callback", {
                         method: "POST",
-                        headers: {
+                        headers: { 
                             "Content-Type": "application/json",
+                            "Accept": "application/json"
                         },
-                        body: JSON.stringify({
-                            query_id: queryId,
-                            formData: formData,
-                            user: tg?.initDataUnsafe?.user || { id: userId, first_name: userName },
-                        }),
+                        body: JSON.stringify(payload)
                     });
 
-                    if (!response.ok) {
-                        const err = await response.text();
-                        throw new Error(err || `HTTP ${response.status}`);
-                    }
-
-                    // Показываем успешное сообщение
-                    if (tg && typeof tg.showAlert === 'function') {
-                        tg.showAlert("Заявка отправлена!");
-                        tg.close();
-                    } else {
-                        alert("Заявка отправлена!");
+                    if (response.ok) {
+                        // 7. Успешная отправка в браузере
+                        alert("✅ Заявка успешно отправлена!");
+                        
+                        // Показываем экран успеха
                         document.getElementById("form").style.display = "none";
                         document.getElementById("scr-done").style.display = "block";
                         document.querySelector("#scr-done h1").textContent =
-                            STRINGS[state.language]?.thankYouTitle ||
-                            STRINGS["en"].thankYouTitle;
+                            STRINGS[state.language]?.thankYouTitle || STRINGS["en"].thankYouTitle;
                         document.querySelector("#scr-done p.muted").textContent =
-                            STRINGS[state.language]?.thankYouText ||
-                            STRINGS["en"].thankYouText;
-                        setSubmitLoading(false);
+                            STRINGS[state.language]?.thankYouText || STRINGS["en"].thankYouText;
+                        
+                        // Меняем стиль кнопки
+                        const btnSubmit = $("btn-submit");
+                        if (btnSubmit) {
+                            btnSubmit.textContent = "Успешно отправлено!";
+                            btnSubmit.style.background = "#4CAF50";
+                        }
+                    } else {
+                        throw new Error(`Ошибка сервера: ${response.status}`);
                     }
                 } catch (error) {
+                    console.error("Полная ошибка:", error);
+                    
+                    // Упрощенное сообщение об ошибке для пользователя
+                    alert(`❌ Ошибка отправки. Проверьте консоль для деталей.`);
+                    
+                    // Разблокируем кнопку при ошибке
                     setSubmitLoading(false);
-                    alert("Ошибка отправки: " + (error.message || "неизвестно"));
-                    console.error("Submit error:", error);
                 }
             }
 
